@@ -3,16 +3,16 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='well-profile',
-    packages=['well-profile'],
-    version='0.0.1',
+    name='well_profile',
+    packages=['well_profile'],
+    version='0.0.1n',
     license='LGPL v3',
     description='Well Profile Builder',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Pro Well Plan AS',
     author_email='juan@prowellplan.com',
-    url='https://github.com/pro-well-plan/well-profile',
+    url='https://github.com/pro-well-plan/well_profile',
     keywords='drilling',
     classifiers=['Programming Language :: Python :: 3',
                  'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
