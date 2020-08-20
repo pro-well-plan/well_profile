@@ -1,17 +1,17 @@
 ![](https://user-images.githubusercontent.com/52009346/69100304-2eb3e800-0a5d-11ea-9a3a-8e502af2120b.png)
 
 ## Introduction
-well-profile is a tool to generate or load well profiles in 3D. Features are added as they
+well_profile is a tool to generate or load well profiles in 3D. Features are added as they
 are needed; suggestions and contributions of all kinds are very welcome.
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Get torque-drag
+### Get well_profile
 
-* Source code from [Github](https://github.com/pro-well-plan/well-profile)
-    * `git clone https://github.com/pro-well-plan/well-profile`
+* Source code from [Github](https://github.com/pro-well-plan/well_profile)
+    * `git clone https://github.com/pro-well-plan/well_profile`
 
     
 ## Contributing
