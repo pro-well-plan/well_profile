@@ -329,7 +329,7 @@ def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eo
 def load(data, grid_length=50, units='metric'):
     """
     Load an existing wellpath.
-    :param data: dictionary containing wellpath data (md, tvd, inclination and azimuth)
+    :param data: excel file name or dictionary containing wellpath data (md, tvd, inclination and azimuth)
     :param grid_length: cell's length, m or ft
     :param units: 'metric' or 'english'
     :return: a wellpath object with 3D position
@@ -337,6 +337,13 @@ def load(data, grid_length=50, units='metric'):
 
     from numpy import interp, arange
     from math import radians, sin, cos, degrees, acos, tan
+    import pandas as pd
+
+    if ".xlsx" in data:
+        data = pd.read_excel(data)  # open excel file with pandas
+        data.dropna(inplace=True)
+        data = data.to_dict('records')
+
     md = [x['md'] for x in data]
     tvd = [x['tvd'] for x in data]
     inc = [x['inclination'] for x in data]
@@ -420,19 +427,20 @@ def load(data, grid_length=50, units='metric'):
             self.east = east
             self.sections = sections
 
-        def plot(self, azim=45, elev=20):
-            plot_wellpath(self, azim, elev, units)
+        def plot(self, azim=45, elev=20, add_well=None):
+            plot_wellpath(self, azim, elev, units, add_well)
 
     return WellDepths()
 
 
-def plot_wellpath(wellpath, azim=45, elev=20, units='metric'):
+def plot_wellpath(wellpath, azim=45, elev=20, units='metric', add_well=None):
     """
     Plot a 3D Wellpath.
     :param wellpath: a wellpath object with 3D position,
     :param azim: set horizontal view.
     :param elev: set vertical view.
     :param units: 'metric' or 'english'
+    :param add_well: include another well
     :return: 3D Plot
     """
 
@@ -443,6 +451,8 @@ def plot_wellpath(wellpath, azim=45, elev=20, units='metric'):
     ax.view_init(azim=azim, elev=elev)
     # Plotting well profile (TVD vs Horizontal Displacement)
     ax.plot(xs=wellpath.east, ys=wellpath.north, zs=wellpath.tvd)
+    if add_well is not None:
+        ax.plot(xs=add_well.east, ys=add_well.north, zs=add_well.tvd)
     if units == 'metric':
         ax.set_xlabel('East, m')
         ax.set_ylabel('North, m')
