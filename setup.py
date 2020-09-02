@@ -21,5 +21,5 @@ setup(
                  'Topic :: Software Development',
                  'Topic :: Software Development :: Libraries',
                  'Topic :: Utilities'],
-    install_requires=['numpy', 'matplotlib']
+    install_requires=['numpy', 'pandas', 'xlrd', 'plotly']
 )

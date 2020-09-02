@@ -22,6 +22,12 @@ def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eo
     deltaz = 1
     md = list(arange(0, mdt + deltaz, deltaz))  # Measured Depth from RKB, m
     zstep = len(md)  # Number of cells from RKB up to the bottom
+    tvd = None
+    inclination = None
+    azimuth = None
+    north = None
+    east = None
+
     if profile == 'V':        # Vertical well
         tvd = md   # True Vertical Depth from RKB, m
         north = [0] * zstep  # x axis
@@ -320,8 +326,8 @@ def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eo
                 self.north = [i * 3.28 for i in north]
                 self.east = [i * 3.28 for i in east]
 
-        def plot(self, azim=45, elev=20):
-            plot_wellpath(self, azim, elev, units)
+        def plot(self, add_well=None, names=None):
+            plot_wellpath(self, units, add_well, names)
 
     return WellDepths()
 
@@ -370,7 +376,7 @@ def load(data, grid_length=50, units='metric'):
             - sin(radians(inc_new[x])) * sin(radians(inc_new[x - 1])) * (1 - cos(radians(az_new[x] - az_new[x - 1])))
         ))
 
-    if 'north' and 'east' in data:
+    if 'north' and 'east' in data[0]:
         north = [x['north'] for x in data]
         east = [x['east'] for x in data]
         north_new = [0]
@@ -378,6 +384,9 @@ def load(data, grid_length=50, units='metric'):
         for i in md_new[1:]:
             north_new.append(interp(i, md, north))
             east_new.append(interp(i, md, east))
+        north = north_new
+        east = east_new
+
     else:
         north = [0]
         east = [0]
@@ -427,41 +436,65 @@ def load(data, grid_length=50, units='metric'):
             self.east = east
             self.sections = sections
 
-        def plot(self, azim=45, elev=20, add_well=None):
-            plot_wellpath(self, azim, elev, units, add_well)
+        def plot(self, add_well=None, names=None):
+            plot_wellpath(self, units, add_well, names)
 
     return WellDepths()
 
 
-def plot_wellpath(wellpath, azim=45, elev=20, units='metric', add_well=None):
+def plot_wellpath(wellpath, units='metric', add_well=None, names=None):
     """
     Plot a 3D Wellpath.
     :param wellpath: a wellpath object with 3D position,
-    :param azim: set horizontal view.
-    :param elev: set vertical view.
     :param units: 'metric' or 'english'
     :param add_well: include another well
     :return: 3D Plot
     """
 
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    ax.view_init(azim=azim, elev=elev)
-    # Plotting well profile (TVD vs Horizontal Displacement)
-    ax.plot(xs=wellpath.east, ys=wellpath.north, zs=wellpath.tvd)
+    import pandas as pd
+    import plotly.express as px
+
+    well1 = pd.DataFrame(list(zip(wellpath.tvd, wellpath.north, wellpath.east)), columns=['tvd', 'north', 'east'])
+    well1["well"] = 1
+    result = well1
+
     if add_well is not None:
-        ax.plot(xs=add_well.east, ys=add_well.north, zs=add_well.tvd)
+        wells = []
+
+        if type(add_well) is not list:
+            add_well = [add_well]
+
+        well_no = 2
+        for x in add_well:
+            new_well = pd.DataFrame(list(zip(x.tvd, x.north, x.east)), columns=['tvd', 'north', 'east'])
+            new_well["well"] = well_no
+            wells.append(new_well)
+            well_no += 1
+
+        all_wells = well1.append(wells)
+        result = all_wells
+
+    if names is not None:
+
+        if type(names) is not list:
+            names = [names]
+
+        well_no = 1
+        for x in names:
+            result.replace({'well': {well_no: x}}, inplace=True)
+            well_no += 1
+
+    fig = px.line_3d(result, x="east", y="north", z="tvd", color='well')
+
     if units == 'metric':
-        ax.set_xlabel('East, m')
-        ax.set_ylabel('North, m')
-        ax.set_zlabel('TVD, m')
+        fig.update_layout(scene=dict(
+            xaxis_title='East, m',
+            yaxis_title='North, m',
+            zaxis_title='TVD, m'))
     else:
-        ax.set_xlabel('East, ft')
-        ax.set_ylabel('North, ft')
-        ax.set_zlabel('TVD, ft')
-    title = 'Well Profile'
-    ax.set_title(title)
-    ax.invert_zaxis()
+        fig.update_layout(scene=dict(
+            xaxis_title='East, ft',
+            yaxis_title='North, ft',
+            zaxis_title='TVD, ft'))
+    fig.update_scenes(zaxis_autorange="reversed")
     fig.show()
