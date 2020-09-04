@@ -10,7 +10,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Get well_profile
 
-* Source code from [Github](https://github.com/pro-well-plan/well_profile)
+* Users: Wheels for Python from [PyPI](https://pypi.python.org/pypi/well-profile/) 
+    * `pip install well_profile`
+* Developers: Source code from [Github](https://github.com/pro-well-plan/well_profile)
     * `git clone https://github.com/pro-well-plan/well_profile`
 
     
