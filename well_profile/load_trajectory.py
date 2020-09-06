@@ -4,7 +4,7 @@ from .plot import plot_wellpath
 def load(data, grid_length=50, units='metric'):
     """
     Load an existing wellpath.
-    :param data: excel file name or dictionary containing wellpath data (md, tvd, inclination and azimuth)
+    :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
     :param grid_length: cell's length, m or ft
     :param units: 'metric' or 'english'
     :return: a wellpath object with 3D position
@@ -13,6 +13,10 @@ def load(data, grid_length=50, units='metric'):
     from numpy import interp, arange
     from math import radians, sin, cos, degrees, acos, tan
     import pandas as pd
+
+    if isinstance(data, pd.DataFrame):
+        data.dropna(inplace=True)
+        data = data.to_dict('records')
 
     if ".xlsx" in data:
         data = pd.read_excel(data)  # open excel file with pandas
