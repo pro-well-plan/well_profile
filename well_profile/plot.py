@@ -1,4 +1,8 @@
-def plot_wellpath(wellpath, units='metric', add_well=None, names=None):
+import pandas as pd
+import plotly.express as px
+
+
+def plot_wellpath(wellpath, add_well=None, names=None):
     """
     Plot a 3D Wellpath.
     :param wellpath: a wellpath object with 3D position,
@@ -8,8 +12,7 @@ def plot_wellpath(wellpath, units='metric', add_well=None, names=None):
     :return: 3D Plot - plotly.graph_objects.Figure
     """
 
-    import pandas as pd
-    import plotly.express as px
+    units = wellpath.units
 
     well1 = pd.DataFrame(list(zip(wellpath.tvd, wellpath.north, wellpath.east)), columns=['tvd', 'north', 'east'])
     well1["well"] = 1

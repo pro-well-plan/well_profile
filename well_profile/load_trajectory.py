@@ -107,9 +107,10 @@ def load(data, grid_length=50, units='metric'):
             self.north = north
             self.east = east
             self.sections = sections
+            self.units = units
 
         def plot(self, add_well=None, names=None):
-            fig = plot_wellpath(self, units, add_well, names)
+            fig = plot_wellpath(self, add_well, names)
             return fig
 
         def df(self):

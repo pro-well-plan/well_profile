@@ -322,15 +322,10 @@ def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eo
             self.dogleg = dogleg
             self.azimuth = azimuth
             self.sections = sections
-            if units == 'english':
-                self.md = [i * 3.28 for i in md]
-                self.tvd = [i * 3.28 for i in tvd]
-                self.deltaz = grid_length * 3.28
-                self.north = [i * 3.28 for i in north]
-                self.east = [i * 3.28 for i in east]
+            self.units = units
 
         def plot(self, add_well=None, names=None):
-            fig = plot_wellpath(self, units, add_well, names)
+            fig = plot_wellpath(self, add_well, names)
             return fig
 
         def df(self):
