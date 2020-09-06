@@ -5,7 +5,7 @@ def plot_wellpath(wellpath, units='metric', add_well=None, names=None):
     :param units: 'metric' or 'english'
     :param add_well: include a new well or list of wells
     :param names: set name or list of names for wells included in the plot
-    :return: 3D Plot
+    :return: 3D Plot - plotly.graph_objects.Figure
     """
 
     import pandas as pd
@@ -54,4 +54,5 @@ def plot_wellpath(wellpath, units='metric', add_well=None, names=None):
             yaxis_title='North, ft',
             zaxis_title='TVD, ft'))
     fig.update_scenes(zaxis_autorange="reversed")
-    fig.show()
+
+    return fig
