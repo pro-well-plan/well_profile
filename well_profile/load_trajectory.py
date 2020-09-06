@@ -1,4 +1,7 @@
 from .plot import plot_wellpath
+from numpy import interp, arange
+from math import radians, sin, cos, degrees, acos, tan
+import pandas as pd
 
 
 def load(data, grid_length=50, units='metric'):
@@ -9,10 +12,6 @@ def load(data, grid_length=50, units='metric'):
     :param units: 'metric' or 'english'
     :return: a wellpath object with 3D position
     """
-
-    from numpy import interp, arange
-    from math import radians, sin, cos, degrees, acos, tan
-    import pandas as pd
 
     if isinstance(data, pd.DataFrame):
         data.dropna(inplace=True)
@@ -110,6 +109,13 @@ def load(data, grid_length=50, units='metric'):
             self.sections = sections
 
         def plot(self, add_well=None, names=None):
-            plot_wellpath(self, units, add_well, names)
+            fig = plot_wellpath(self, units, add_well, names)
+            return fig
+
+        def df(self):
+            data_dict = {'md': self.md, 'tvd': self.tvd, 'inclination': self.inclination,
+                         'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
+            dataframe = pd.DataFrame(data_dict)
+            return dataframe
 
     return WellDepths()

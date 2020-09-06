@@ -1,4 +1,7 @@
 from .plot import plot_wellpath
+from numpy import arange
+from math import radians, sin, cos, degrees, acos
+import pandas as pd
 
 
 def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric'):
@@ -18,9 +21,6 @@ def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eo
     :param units: 'metric' or 'english'
     :return: a wellpath object with 3D position
     """
-
-    from numpy import arange
-    from math import radians, sin, cos, degrees, acos
 
     deltaz = 1
     md = list(arange(0, mdt + deltaz, deltaz))  # Measured Depth from RKB, m
@@ -330,6 +330,13 @@ def get(mdt, grid_length=50, profile='V', build_angle=1, kop=0, eob=0, sod=0, eo
                 self.east = [i * 3.28 for i in east]
 
         def plot(self, add_well=None, names=None):
-            plot_wellpath(self, units, add_well, names)
+            fig = plot_wellpath(self, units, add_well, names)
+            return fig
+
+        def df(self):
+            data_dict = {'md': self.md, 'tvd': self.tvd, 'inclination': self.inclination,
+                         'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
+            dataframe = pd.DataFrame(data_dict)
+            return dataframe
 
     return WellDepths()
