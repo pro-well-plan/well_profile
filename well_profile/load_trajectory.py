@@ -28,9 +28,6 @@ def load(data, grid_length=50, units='metric'):
     az = [x['azimuth'] for x in data]
     deltaz = grid_length
 
-    if units == 'english':
-        deltaz = grid_length * 3.28
-
     md_new = list(arange(0, max(md) + deltaz, deltaz))
     tvd_new = [0]
     inc_new = [0]

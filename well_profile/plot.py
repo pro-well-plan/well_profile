@@ -6,7 +6,6 @@ def plot_wellpath(wellpath, add_well=None, names=None):
     """
     Plot a 3D Wellpath.
     :param wellpath: a wellpath object with 3D position,
-    :param units: 'metric' or 'english'
     :param add_well: include a new well or list of wells
     :param names: set name or list of names for wells included in the plot
     :return: 3D Plot - plotly.graph_objects.Figure
