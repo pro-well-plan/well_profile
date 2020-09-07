@@ -14,11 +14,19 @@ def load(data, grid_length=50, units='metric'):
     """
 
     if isinstance(data, pd.DataFrame):
+        data_initial = data.copy()
         data.dropna(inplace=True)
         data = data.to_dict('records')
 
     if ".xlsx" in data:
         data = pd.read_excel(data)  # open excel file with pandas
+        data_initial = data.copy()
+        data.dropna(inplace=True)
+        data = data.to_dict('records')
+
+    if ".csv" in data:
+        data = pd.read_csv(data)  # open csv file with pandas
+        data_initial = data.copy()
         data.dropna(inplace=True)
         data = data.to_dict('records')
 
@@ -115,5 +123,8 @@ def load(data, grid_length=50, units='metric'):
                          'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
             dataframe = pd.DataFrame(data_dict)
             return dataframe
+
+        def initial(self):
+            return data_initial
 
     return WellDepths()
