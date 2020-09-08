@@ -31,17 +31,14 @@ def load(data, grid_length=50, units='metric'):
         data = data.to_dict('records')
 
     md = [x['md'] for x in data]
-    tvd = [x['tvd'] for x in data]
     inc = [x['inclination'] for x in data]
     az = [x['azimuth'] for x in data]
     deltaz = grid_length
 
     md_new = list(arange(0, max(md) + deltaz, deltaz))
-    tvd_new = [0]
     inc_new = [0]
     az_new = [0]
     for i in md_new[1:]:
-        tvd_new.append(interp(i, md, tvd))
         inc_new.append(interp(i, md, inc))
         az_new.append(interp(i, md, az))
     zstep = len(md_new)
@@ -80,12 +77,29 @@ def load(data, grid_length=50, units='metric'):
                                            + sin(radians(inc_new[x])) * sin(radians(az_new[x]))) * RF
             east.append(east[-1] + east_delta)
 
+    if 'tvd' in data[0]:
+        tvd = [x['tvd'] for x in data]
+        tvd_new = [0]
+        for i in md_new[1:]:
+            tvd_new.append(interp(i, md, tvd))
+
+    else:
+        tvd = [0]
+        for x in range(1, len(md_new)):
+            delta_md = md_new[x] - md_new[x - 1]
+            if dogleg[x] == 0:
+                RF = 1
+            else:
+                RF = tan(dogleg[x] / 2) / (dogleg[x] / 2)
+            tvd_delta = 0.5 * delta_md * (cos(radians(inc_new[x - 1])) + cos(radians(inc_new[x]))) * RF
+            tvd.append(tvd[-1] + tvd_delta)
+
     dogleg = [degrees(x) for x in dogleg]
 
     # Defining type of section
     sections = ['vertical', 'vertical']
-    for z in range(2, len(tvd_new)):
-        delta_tvd = round(tvd_new[z] - tvd_new[z - 1], 9)
+    for z in range(2, len(tvd)):
+        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
         if inc_new[z] == 0:  # Vertical Section
             sections.append('vertical')
         else:
@@ -103,7 +117,7 @@ def load(data, grid_length=50, units='metric'):
     class WellDepths(object):
         def __init__(self):
             self.md = md_new
-            self.tvd = tvd_new
+            self.tvd = tvd
             self.inclination = inc_new
             self.azimuth = az_new
             self.dogleg = dogleg
