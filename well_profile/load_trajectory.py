@@ -16,18 +16,21 @@ def load(data, grid_length=50, units='metric'):
     if isinstance(data, pd.DataFrame):
         data_initial = data.copy()
         data.dropna(inplace=True)
+        data = solve_key_similarities(data)
         data = data.to_dict('records')
 
     if ".xlsx" in data:
         data = pd.read_excel(data)  # open excel file with pandas
         data_initial = data.copy()
         data.dropna(inplace=True)
+        data = solve_key_similarities(data)
         data = data.to_dict('records')
 
     if ".csv" in data:
         data = pd.read_csv(data)  # open csv file with pandas
         data_initial = data.copy()
         data.dropna(inplace=True)
+        data = solve_key_similarities(data)
         data = data.to_dict('records')
 
     md = [x['md'] for x in data]
@@ -142,3 +145,66 @@ def load(data, grid_length=50, units='metric'):
             return data_initial
 
     return WellDepths()
+
+
+def solve_key_similarities(data):
+    md_similarities = ['MD', 'MD (ft)', 'MD (m)', 'measured depth', 'Measured Depth',
+                       'md (ft)', 'md (m)', 'MD(m)', 'MD(ft)', 'measured depth (ft)', 'Measured Depth (ft)',
+                       'measured depth (m)', 'Measured Depth (m)', 'measured depth(m)', 'Measured Depth(m)',
+                       'measured depth(ft)', 'Measured Depth(ft)']
+
+    inc_similarities = ['Inclination', 'inc', 'Inc', 'Incl', 'incl', 'Inc (°)', 'inc (°)',
+                        'Inclination (°)', 'Incl (°)', 'incl (°)', 'Inclination(°)', 'Incl(°)',
+                        'incl(°)', 'Inc(°)', 'inc(°)', 'INC', 'INC(°)', 'INC (°)', 'INCL',
+                        'INCL(°)', 'INCL (°)']
+
+    azi_similarities = ['az', 'az(°)', 'az (°)',
+                        'Az', 'Az(°)', 'Az (°)',
+                        'AZ', 'AZ(°)', 'AZ (°)',
+                        'Azi', 'Azi(°)', 'Azi (°)',
+                        'azi', 'azi(°)', 'azi (°)',
+                        'AZI', 'AZI(°)', 'AZI (°)',
+                        'Azimuth', 'Azimuth(°)', 'Azimuth (°)']
+
+    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)',
+                        'TVD(m)', 'TVD(ft)']
+
+    north_similarities = ['NORTH', 'NORTH(m)', 'NORTH(ft)',
+                          'NORTH (m)', 'NORTH (ft)',
+                          'North', 'North(m)', 'North(ft)',
+                          'North (m)', 'North (ft)',
+                          'Northing(m)', 'Northing(ft)'
+                                         'Northing (m)', ' Northing(ft)'
+                                                         'N/S (m)', 'N/S (ft)',
+                          'N/S(m)', 'N/S(ft)',
+                          'Ns (m)', 'Ns (ft)',
+                          'Ns(m)', 'Ns(ft)']
+
+    east_similarties = ['EAST', 'EAST(m)', 'EAST(ft)',
+                        'EAST (m)', 'EAST (ft)',
+                        'East', 'East(m)', 'East(ft)',
+                        'East (m)', 'East (ft)',
+                        'Easting(m)', 'Easting(ft)'
+                                      'Easting (m)', ' Easting(ft)'
+                                                     'E/W (m)', 'E/W (ft)',
+                        'E/W(m)', 'E/W(ft)',
+                        'Ew (m)', 'Ew (ft)',
+                        'Ew(m)', 'Ew(ft)']
+
+    possible_keys = [md_similarities,
+                     tvd_similarities,
+                     inc_similarities,
+                     azi_similarities,
+                     north_similarities,
+                     east_similarties]
+
+    correct_keys = ['md', 'tvd', 'inclination', 'azimuth', 'north', 'east']
+
+    true_key = 0
+    for i in possible_keys:
+        for x in i:
+            if x in data.columns:
+                data.rename(columns={x: correct_keys[true_key]}, inplace=True)
+        true_key += 1
+
+    return data
