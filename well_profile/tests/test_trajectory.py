@@ -39,7 +39,6 @@ class TestCreate(TestCase):
         self.assertEqual(my_wp.zstep, len(my_wp.azimuth), msg='wrong number of values in azimuth')
         self.assertIsInstance(my_wp.deltaz, int, msg='grid length is not an integer')
 
-
     def test_load_from_df(self):
 
         df = pd.read_excel('trajectory1.xlsx')
@@ -54,7 +53,6 @@ class TestCreate(TestCase):
         self.assertEqual(my_wp.zstep, len(my_wp.dogleg), msg='wrong number of values in dogleg')
         self.assertEqual(my_wp.zstep, len(my_wp.azimuth), msg='wrong number of values in azimuth')
         self.assertIsInstance(my_wp.deltaz, int, msg='grid length is not an integer')
-
 
     def test_load_from_data(self):
 
@@ -78,3 +76,23 @@ class TestCreate(TestCase):
         self.assertEqual(my_wp.zstep, len(my_wp.dogleg), msg='wrong number of values in dogleg')
         self.assertEqual(my_wp.zstep, len(my_wp.azimuth), msg='wrong number of values in azimuth')
         self.assertIsInstance(my_wp.deltaz, int, msg='grid length is not an integer')
+
+    def test_load_df(self):
+
+        my_wp = wp.load('trajectory1.xlsx').df()
+
+        self.assertIsInstance(my_wp, pd.DataFrame, msg='method is not returning a dataframe')
+        self.assertEqual(len(my_wp.md), len(my_wp.tvd), msg='wrong number of values in tvd')
+        self.assertEqual(len(my_wp.md), len(my_wp.north), msg='wrong number of values in north')
+        self.assertEqual(len(my_wp.md), len(my_wp.east), msg='wrong number of values in east')
+        self.assertEqual(len(my_wp.md), len(my_wp.inclination), msg='wrong number of values in inclination')
+        self.assertEqual(len(my_wp.md), len(my_wp.azimuth), msg='wrong number of values in azimuth')
+
+    def test_load_initial(self):
+
+        my_wp = wp.load('trajectory1.xlsx')
+        my_wp_initial = my_wp.initial()
+
+        self.assertIsInstance(my_wp, object, msg='main function is not returning an object')
+        self.assertIsInstance(my_wp_initial, pd.DataFrame, msg='method is not returning a dataframe')
+

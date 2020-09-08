@@ -85,6 +85,7 @@ def load(data, grid_length=50, units='metric'):
         tvd_new = [0]
         for i in md_new[1:]:
             tvd_new.append(interp(i, md, tvd))
+        tvd = tvd_new
 
     else:
         tvd = [0]
