@@ -36,6 +36,13 @@ def load(data, grid_length=50, units='metric'):
     md = [x['md'] for x in data]
     inc = [x['inclination'] for x in data]
     az = [x['azimuth'] for x in data]
+
+    for x, y in enumerate(md):      # change values to numbers if are strings
+        if type(y) == str:
+            md[x] = float(y.split(",", 1)[0])
+            inc[x] = float(inc[x].split(",", 1)[0])
+            az[x] = float(az[x].split(",", 1)[0])
+
     deltaz = grid_length
 
     md_new = list(arange(0, max(md) + deltaz, deltaz))
@@ -56,6 +63,12 @@ def load(data, grid_length=50, units='metric'):
     if 'north' and 'east' in data[0]:
         north = [x['north'] for x in data]
         east = [x['east'] for x in data]
+
+        for x, y in enumerate(north):       # change values to numbers if are strings
+            if type(y) == str:
+                north[x] = float(y.split(",", 1)[0])
+                east[x] = float(east[x].split(",", 1)[0])
+
         north_new = [0]
         east_new = [0]
         for i in md_new[1:]:
@@ -82,6 +95,9 @@ def load(data, grid_length=50, units='metric'):
 
     if 'tvd' in data[0]:
         tvd = [x['tvd'] for x in data]
+        for x, y in enumerate(tvd):     # change values to numbers if are strings
+            if type(y) == str:
+                tvd[x] = float(y.split(",", 1)[0])
         tvd_new = [0]
         for i in md_new[1:]:
             tvd_new.append(interp(i, md, tvd))
