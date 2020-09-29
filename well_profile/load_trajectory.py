@@ -1,14 +1,14 @@
 from .plot import plot_wellpath
-from numpy import interp, arange
+from numpy import interp, linspace
 from math import radians, sin, cos, degrees, acos, tan
 import pandas as pd
 
 
-def load(data, grid_length=50, units='metric'):
+def load(data, cells_no=100, units='metric'):
     """
     Load an existing wellpath.
     :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-    :param grid_length: cell's length, m or ft
+    :param cells_no: number of cells
     :param units: 'metric' or 'english'
     :return: a wellpath object with 3D position
     """
@@ -43,15 +43,14 @@ def load(data, grid_length=50, units='metric'):
             inc[x] = float(inc[x].split(",", 1)[0])
             az[x] = float(az[x].split(",", 1)[0])
 
-    deltaz = grid_length
-
-    md_new = list(arange(0, max(md) + deltaz, deltaz))
+    md_new = list(linspace(0, max(md), num=cells_no))
+    depth_step = md[1]
     inc_new = [0]
     az_new = [0]
     for i in md_new[1:]:
         inc_new.append(interp(i, md, inc))
         az_new.append(interp(i, md, az))
-    zstep = len(md_new)
+    cells_no = len(md_new)
 
     dogleg = [0]
     for x in range(1, len(md_new)):
@@ -83,14 +82,14 @@ def load(data, grid_length=50, units='metric'):
         for x in range(1, len(md_new)):
             delta_md = md_new[x] - md_new[x - 1]
             if dogleg[x] == 0:
-                RF = 1
+                rf = 1
             else:
-                RF = tan(dogleg[x] / 2) / (dogleg[x] / 2)
+                rf = tan(dogleg[x] / 2) / (dogleg[x] / 2)
             north_delta = 0.5 * delta_md * (sin(radians(inc_new[x - 1])) * cos(radians(az_new[x - 1]))
-                                            + sin(radians(inc_new[x])) * cos(radians(az_new[x]))) * RF
+                                            + sin(radians(inc_new[x])) * cos(radians(az_new[x]))) * rf
             north.append(north[-1] + north_delta)
             east_delta = 0.5 * delta_md * (sin(radians(inc_new[x - 1])) * sin(radians(az_new[x - 1]))
-                                           + sin(radians(inc_new[x])) * sin(radians(az_new[x]))) * RF
+                                           + sin(radians(inc_new[x])) * sin(radians(az_new[x]))) * rf
             east.append(east[-1] + east_delta)
 
     if 'tvd' in data[0]:
@@ -108,31 +107,16 @@ def load(data, grid_length=50, units='metric'):
         for x in range(1, len(md_new)):
             delta_md = md_new[x] - md_new[x - 1]
             if dogleg[x] == 0:
-                RF = 1
+                rf = 1
             else:
-                RF = tan(dogleg[x] / 2) / (dogleg[x] / 2)
-            tvd_delta = 0.5 * delta_md * (cos(radians(inc_new[x - 1])) + cos(radians(inc_new[x]))) * RF
+                rf = tan(dogleg[x] / 2) / (dogleg[x] / 2)
+            tvd_delta = 0.5 * delta_md * (cos(radians(inc_new[x - 1])) + cos(radians(inc_new[x]))) * rf
             tvd.append(tvd[-1] + tvd_delta)
 
     dogleg = [degrees(x) for x in dogleg]
 
     # Defining type of section
-    sections = ['vertical', 'vertical']
-    for z in range(2, len(tvd)):
-        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
-        if inc_new[z] == 0:  # Vertical Section
-            sections.append('vertical')
-        else:
-            if round(inc_new[z], 2) == round(inc_new[z - 1], 2):
-                if delta_tvd == 0:
-                    sections.append('horizontal')  # Horizontal Section
-                else:
-                    sections.append('hold')  # Straight Inclined Section
-            else:
-                if inc_new[z] > inc_new[z - 1]:  # Built-up Section
-                    sections.append('build-up')
-                if inc_new[z] < inc_new[z - 1]:  # Drop-off Section
-                    sections.append('drop-off')
+    sections = define_sections(tvd, inc_new)
 
     class WellDepths(object):
         def __init__(self):
@@ -141,8 +125,8 @@ def load(data, grid_length=50, units='metric'):
             self.inclination = inc_new
             self.azimuth = az_new
             self.dogleg = dogleg
-            self.deltaz = deltaz
-            self.zstep = zstep
+            self.depth_step = depth_step
+            self.cells_no = cells_no
             self.north = north
             self.east = east
             self.sections = sections
@@ -225,3 +209,24 @@ def solve_key_similarities(data):
         true_key += 1
 
     return data
+
+
+def define_sections(tvd, inc):
+    sections = ['vertical', 'vertical']
+    for z in range(2, len(tvd)):
+        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
+        if inc[z] == 0:  # Vertical Section
+            sections.append('vertical')
+        else:
+            if round(inc[z], 2) == round(inc[z - 1], 2):
+                if delta_tvd == 0:
+                    sections.append('horizontal')  # Horizontal Section
+                else:
+                    sections.append('hold')  # Straight Inclined Section
+            else:
+                if inc[z] > inc[z - 1]:  # Built-up Section
+                    sections.append('build-up')
+                if inc[z] < inc[z - 1]:  # Drop-off Section
+                    sections.append('drop-off')
+
+    return sections
