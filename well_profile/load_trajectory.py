@@ -43,11 +43,11 @@ def load(data, cells_no=100, units='metric'):
             inc[x] = float(inc[x].split(",", 1)[0])
             az[x] = float(az[x].split(",", 1)[0])
 
-    md_new = list(linspace(0, max(md), num=cells_no))
-    depth_step = md[1]
-    inc_new = [0]
-    az_new = [0]
-    for i in md_new[1:]:
+    md_new = list(linspace(min(md), max(md), num=cells_no))
+    depth_step = md[1] - md[0]
+    inc_new = []
+    az_new = []
+    for i in md_new:
         inc_new.append(interp(i, md, inc))
         az_new.append(interp(i, md, az))
     cells_no = len(md_new)
@@ -82,14 +82,14 @@ def load(data, cells_no=100, units='metric'):
         for x in range(1, len(md_new)):
             delta_md = md_new[x] - md_new[x - 1]
             if dogleg[x] == 0:
-                rf = 1
+                rf_constant = 1
             else:
-                rf = tan(dogleg[x] / 2) / (dogleg[x] / 2)
+                rf_constant = tan(dogleg[x] / 2) / (dogleg[x] / 2)
             north_delta = 0.5 * delta_md * (sin(radians(inc_new[x - 1])) * cos(radians(az_new[x - 1]))
-                                            + sin(radians(inc_new[x])) * cos(radians(az_new[x]))) * rf
+                                            + sin(radians(inc_new[x])) * cos(radians(az_new[x]))) * rf_constant
             north.append(north[-1] + north_delta)
             east_delta = 0.5 * delta_md * (sin(radians(inc_new[x - 1])) * sin(radians(az_new[x - 1]))
-                                           + sin(radians(inc_new[x])) * sin(radians(az_new[x]))) * rf
+                                           + sin(radians(inc_new[x])) * sin(radians(az_new[x]))) * rf_constant
             east.append(east[-1] + east_delta)
 
     if 'tvd' in data[0]:
@@ -97,13 +97,13 @@ def load(data, cells_no=100, units='metric'):
         for x, y in enumerate(tvd):     # change values to numbers if are strings
             if type(y) == str:
                 tvd[x] = float(y.split(",", 1)[0])
-        tvd_new = [0]
-        for i in md_new[1:]:
+        tvd_new = []
+        for i in md_new:
             tvd_new.append(interp(i, md, tvd))
         tvd = tvd_new
 
     else:
-        tvd = [0]
+        tvd = [md_new[0]]
         for x in range(1, len(md_new)):
             delta_md = md_new[x] - md_new[x - 1]
             if dogleg[x] == 0:
