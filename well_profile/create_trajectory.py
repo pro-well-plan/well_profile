@@ -5,7 +5,8 @@ from .load_trajectory import define_sections
 import pandas as pd
 
 
-def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric'):
+def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
+        start=None):
     """
     Generate a wellpath.
     :param mdt: target depth, m or ft
@@ -22,6 +23,13 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     :param units: 'metric' or 'english'
     :return: a wellpath object with 3D position
     """
+
+    initial_point = {'north': 0, 'east': 0, 'depth': 0}
+
+    if start is not None:
+        for x in start:  # changing default values
+            if x in initial_point:
+                initial_point[x] = start[x]
 
     md = list(arange(0, mdt + 1, 1))    # Measured Depth from RKB, m
     depth_step = md[1]
@@ -69,11 +77,11 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     class WellDepths(object):
         def __init__(self):
             self.md = md_new
-            self.tvd = tvd_new
+            self.tvd = [x + initial_point['depth'] for x in tvd_new]
             self.depth_step = depth_step
             self.cells_no = cells_no
-            self.north = north_new
-            self.east = east_new
+            self.north = [x + initial_point['north'] for x in north_new]
+            self.east = [x + initial_point['east'] for x in east_new]
             self.inclination = [round(i, 2) for i in inclination_new]
             self.dogleg = dogleg
             self.azimuth = azimuth_new
