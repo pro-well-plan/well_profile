@@ -4,14 +4,22 @@ from math import radians, sin, cos, degrees, acos, tan
 import pandas as pd
 
 
-def load(data, cells_no=100, units='metric'):
+def load(data, cells_no=100, units='metric', set_start=None):
     """
     Load an existing wellpath.
     :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
     :param cells_no: number of cells
     :param units: 'metric' or 'english'
+    :param set_start: set initial point in m {'north': 0, 'east': 0}
     :return: a wellpath object with 3D position
     """
+
+    initial_point = {'north': 0, 'east': 0}
+
+    if set_start is not None:
+        for x in set_start:  # changing default values
+            if x in initial_point:
+                initial_point[x] = set_start[x]
 
     if isinstance(data, pd.DataFrame):
         data_initial = data.copy()
@@ -127,8 +135,8 @@ def load(data, cells_no=100, units='metric'):
             self.dogleg = dogleg
             self.depth_step = depth_step
             self.cells_no = cells_no
-            self.north = north
-            self.east = east
+            self.north = [x + initial_point['north'] for x in north]
+            self.east = [x + initial_point['east'] for x in east]
             self.sections = sections
             self.units = units
 

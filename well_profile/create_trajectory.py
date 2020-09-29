@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
-        start=None):
+        set_start=None):
     """
     Generate a wellpath.
     :param mdt: target depth, m or ft
@@ -21,15 +21,16 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     :param kop2: kick-off point 2, m or ft
     :param eob2: end of build 2, m or ft
     :param units: 'metric' or 'english'
+    :param set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
     :return: a wellpath object with 3D position
     """
 
     initial_point = {'north': 0, 'east': 0, 'depth': 0}
 
-    if start is not None:
-        for x in start:  # changing default values
+    if set_start is not None:
+        for x in set_start:  # changing default values
             if x in initial_point:
-                initial_point[x] = start[x]
+                initial_point[x] = set_start[x]
 
     md = list(arange(0, mdt + 1, 1))    # Measured Depth from RKB, m
     depth_step = md[1]
