@@ -9,6 +9,7 @@
 * [Load your own wellbore trajectory.](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#2-load)
   * [2.1. From excel file](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#21-from-excel-file)
   * [2.2. From csv file](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#22-from-csv-file)
+* [Plot two or more wells.](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#3-two-or-more-wells-in-one-plot)
 
 
 ## 1. Create
@@ -109,7 +110,7 @@ well.plot(names=['loaded from excel']).show()
 ```
 <img width="1038" alt="Screenshot 2020-10-05 at 13 17 44" src="https://user-images.githubusercontent.com/52009346/95073443-2912cf80-070d-11eb-9ac2-9b03a5663fff.png">
 
-### 2.1. From csv file
+### 2.2. From csv file
 ```
 >>> import well_profile as wp 
 >>> well = wp.load('trajectory1.csv',   # define target depth (md) in m or ft
@@ -120,3 +121,17 @@ well.plot(names=['loaded from excel']).show()
 well.plot(names=['loaded from csv']).show()
 ```
 <img width="1031" alt="Screenshot 2020-10-05 at 13 34 19" src="https://user-images.githubusercontent.com/52009346/95074838-7c861d00-070f-11eb-9b7e-218c81353181.png">
+
+## 3. Two or more wells in one plot
+```
+>>> import well_profile as wp 
+>>> well_1 = wp.load('trajectory1.xlsx')      # LOAD WELL 1
+    well_2 = wp.get(6000, profile='J', kop=2000, eob=4000, build_angle=85, set_start={'east':2000})       # GET WELL 2
+    well_3 = wp.load('trajectory2.xlsx', set_start={'north':-4000})        # LOAD WELL 3
+
+well_1.plot(add_well=[well_2, well_3],
+            names=['first well name',
+                   'second well name',
+                   'third well name']).show()        # Generate 3D plot for well 1 including wells 2 and 3
+```
+<img width="1063" alt="Screenshot 2020-10-05 at 14 50 09" src="https://user-images.githubusercontent.com/52009346/95081611-1357d700-071a-11eb-8679-b8a349d9d0d4.png">
