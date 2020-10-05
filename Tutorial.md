@@ -1,13 +1,14 @@
 ## Index ##
 
-* Create a new wellbore trajectory.
-  * 1.1. Vertical well
-  * 1.2. J-type well
-  * 1.3. S-type well
-  * 1.4. Horizontal single curve well
-  * 1.5. Horizontal double curve well
-* Load your own wellbore trajectory.
-  * 2.1. From excel file
+* [Create a new wellbore trajectory.](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#1-create)
+  * [1.1. Vertical well](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#11-vertical-well)
+  * [1.2. J-type well](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#12-j-type-well)
+  * [1.3. S-type well](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#13-s-type-well)
+  * [1.4. Horizontal single curve well](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#14-horizontal-single-curve-well)
+  * [1.5. Horizontal double curve well](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#15-horizontal-double-curve-well)
+* [Load your own wellbore trajectory.](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#2-load)
+  * [2.1. From excel file](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#21-from-excel-file)
+  * [2.2. From csv file](https://github.com/pro-well-plan/well_profile/blob/master/Tutorial.md#22-from-csv-file)
 
 
 ## 1. Create
@@ -107,3 +108,15 @@ Example of a file is shown below. In case TVD is not included, the package calcu
 well.plot(names=['loaded from excel']).show()
 ```
 <img width="1038" alt="Screenshot 2020-10-05 at 13 17 44" src="https://user-images.githubusercontent.com/52009346/95073443-2912cf80-070d-11eb-9ac2-9b03a5663fff.png">
+
+### 2.1. From csv file
+```
+>>> import well_profile as wp 
+>>> well = wp.load('trajectory1.csv',   # define target depth (md) in m or ft
+                   cells_no=100,  # (optional) define number of cells
+                   units='metric',  # (optional) define system of units 'metric' for meters or 'english' for feet
+                   set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
+
+well.plot(names=['loaded from csv']).show()
+```
+<img width="1031" alt="Screenshot 2020-10-05 at 13 34 19" src="https://user-images.githubusercontent.com/52009346/95074838-7c861d00-070f-11eb-9b7e-218c81353181.png">
