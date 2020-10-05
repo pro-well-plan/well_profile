@@ -1,7 +1,14 @@
 ## Index ##
 
-* [1. Create a new wellbore trajectory.](#1.-Create)
-* [2. Load your own wellbore trajectory.](#2.-Load)
+* Create a new wellbore trajectory.
+  * 1.1. Vertical well
+  * 1.2. J-type well
+  * 1.3. S-type well
+  * 1.4. Horizontal single curve well
+  * 1.5. Horizontal double curve well
+* Load your own wellbore trajectory.
+  * 2.1. From excel file
+
 
 ## 1. Create
 
@@ -84,3 +91,19 @@
 <img width="1023" alt="Screenshot 2020-10-05 at 13 01 36" src="https://user-images.githubusercontent.com/52009346/95072056-e94ae880-070a-11eb-9c9b-7f071c8fea96.png">
 
 ## 2. Load
+
+### 2.1. From excel file
+Example of a file is shown below. In case TVD is not included, the package calculates the values using the minimum curvature method. North and East coordinates also can be included.
+
+<img width="437" alt="Screenshot 2020-10-05 at 13 20 20" src="https://user-images.githubusercontent.com/52009346/95073678-8870df80-070d-11eb-9449-ad073520027c.png">
+
+```
+>>> import well_profile as wp 
+>>> well = wp.load('trajectory1.xlsx',   # define target depth (md) in m or ft
+                   cells_no=100,  # (optional) define number of cells
+                   units='metric',  # (optional) define system of units 'metric' for meters or 'english' for feet
+                   set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
+
+well.plot(names=['loaded from excel']).show()
+```
+<img width="1038" alt="Screenshot 2020-10-05 at 13 17 44" src="https://user-images.githubusercontent.com/52009346/95073443-2912cf80-070d-11eb-9ac2-9b03a5663fff.png">
