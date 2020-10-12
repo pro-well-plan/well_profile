@@ -4,4 +4,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - 2020-08-17
+## [v0.1.9] - 2020-09-29
+### Added
+- Set initial depth and coordinates for a new well
+
+## [v0.0.9] - 2020-09-18
+### Fixed
+- Issue when values in excel spreedsheet are not set as numbers
+
+## [v0.0.8.1] - 2020-09-08
+### Changed
+- TVD is not required to load data but still can be included
+- Allowed to use different column names. e.g. md, MD, measured depth, etc
+### Fixed
+- Method to convert trajectory to a dataframe
+
+## [v0.0.7] - 2020-09-07
+### Added
+- Dataframe is now allowed to load a wellpath
+- Files in format .csv are allowed to load a wellpath
+- Method to convert trajectory to a dataframe
+- Units as attribute
+### Changed
+- Plot function returns a figure object
+### Fixed
+- Calcs for creating horizontal double curve
+
+## [v0.0.6] - 2020-09-02
+### Changed
+- Generate 3D plots (north, east and depth)
+### Added
+- Add several wells into the same plot
+
+## [v0.0.5] - 2020-09-01
+### Added
+- Load a wellpath using an excel file
