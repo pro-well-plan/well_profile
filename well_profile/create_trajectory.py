@@ -57,6 +57,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
 
     # Re-arranging
     md_new = list(linspace(0, mdt, num=cells_no))
+    depth_step = md_new[1] - md_new[0]
     tvd_new = [interp(x, md, tvd) for x in md_new]
     north_new = [interp(x, md, north) for x in md_new]
     east_new = [interp(x, md, east) for x in md_new]

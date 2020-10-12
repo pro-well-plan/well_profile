@@ -12,7 +12,7 @@ class TestCreate(TestCase):
         for x in profile:
             my_wp = get(100, cells_no=100, profile=x, build_angle=45, kop=20, eob=40, sod=60, eod=80,
                         kop2=60, eob2=80)
-
+            print(my_wp.depth_step)
             run_assertions(self, my_wp, 100)
 
     def test_load_from_excel(self):
@@ -67,3 +67,4 @@ def run_assertions(self, my_wp, mdt):
     self.assertEqual(len(my_wp.md), len(my_wp.inclination), msg='wrong number of values in inclination')
     self.assertEqual(my_wp.cells_no, len(my_wp.dogleg), msg='wrong number of values in dogleg')
     self.assertEqual(len(my_wp.md), len(my_wp.azimuth), msg='wrong number of values in azimuth')
+    self.assertEqual(my_wp.md[1] - my_wp.md[0], my_wp.depth_step, msg='wrong value for depth step')

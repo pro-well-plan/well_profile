@@ -52,7 +52,8 @@ def load(data, cells_no=100, units='metric', set_start=None):
             az[x] = float(az[x].split(",", 1)[0])
 
     md_new = list(linspace(min(md), max(md), num=cells_no))
-    depth_step = md[1] - md[0]
+    depth_step = md_new[1] - md_new[0]
+
     inc_new = []
     az_new = []
     for i in md_new:
