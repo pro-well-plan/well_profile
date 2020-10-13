@@ -5,13 +5,14 @@ import pandas as pd
 from math import degrees
 
 
-def load(data, cells_no=100, units='metric', set_start=None):
+def load(data, units='metric', set_start=None, equidistant=False, cells_no=None):
     """
     Load an existing wellpath.
     :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-    :param cells_no: number of cells
     :param units: 'metric' or 'english'
     :param set_start: set initial point in m {'north': 0, 'east': 0}
+    :param equidistant: True to get same md difference between points
+    :param cells_no: set number of cells if equidistant is True
     :return: a wellpath object with 3D position
     """
 
@@ -52,15 +53,22 @@ def load(data, cells_no=100, units='metric', set_start=None):
             inc[x] = float(inc[x].split(",", 1)[0])
             az[x] = float(az[x].split(",", 1)[0])
 
-    md_new = list(linspace(min(md), max(md), num=cells_no))
-    depth_step = md_new[1] - md_new[0]
+    if equidistant:
+        if cells_no is None:
+            cells_no = len(data)
+        md_new = list(linspace(min(md), max(md), num=cells_no))
+        inc_new = []
+        az_new = []
+        for i in md_new:
+            inc_new.append(interp(i, md, inc))
+            az_new.append(interp(i, md, az))
+    else:
+        md_new = md
+        inc_new = inc
+        az_new = az
+        cells_no = len(md_new)
 
-    inc_new = []
-    az_new = []
-    for i in md_new:
-        inc_new.append(interp(i, md, inc))
-        az_new.append(interp(i, md, az))
-    cells_no = len(md_new)
+    depth_step = md_new[1] - md_new[0]
 
     dogleg = [0]
     for x in range(1, len(md_new)):
@@ -132,8 +140,8 @@ def load(data, cells_no=100, units='metric', set_start=None):
             self.dogleg = dogleg
             self.depth_step = depth_step
             self.cells_no = cells_no
-            self.north = [x + initial_point['north'] for x in north]
-            self.east = [x + initial_point['east'] for x in east]
+            self.north = [n + initial_point['north'] for n in north]
+            self.east = [e + initial_point['east'] for e in east]
             self.sections = sections
             self.units = units
 
