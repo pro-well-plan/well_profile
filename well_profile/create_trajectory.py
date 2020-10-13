@@ -7,7 +7,7 @@ from math import degrees
 
 
 def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
-        set_start=None):
+        set_start=None, change_azimuth=None):
     """
     Generate a wellpath.
     :param mdt: target depth, m or ft
@@ -23,6 +23,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     :param eob2: end of build 2, m or ft
     :param units: 'metric' or 'english'
     :param set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
+    :param change_azimuth: add specific degrees to azimuth values along the entire well
     :return: a wellpath object with 3D position
     """
 
@@ -64,6 +65,8 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     east_new = [interp(x, md, east) for x in md_new]
     inclination_new = [interp(x, md, inclination) for x in md_new]
     azimuth_new = [interp(x, md, azimuth) for x in md_new]
+    if change_azimuth is not None:
+        azimuth_new, north_new, east_new = mod_azimuth(change_azimuth, azimuth_new, north_new, east_new)
 
     # Defining type of section
     sections = define_sections(tvd_new, inclination_new)
@@ -346,3 +349,26 @@ def create_h2_well(mdt, md, kop, eob, kop2, eob2, build_angle, depth_step):
         azimuth.append(0)
 
     return tvd, north, east, inclination, azimuth
+
+
+def mod_azimuth(change_azimuth, azimuth_new, north_new, east_new):
+    for a in range(len(azimuth_new)):
+        azimuth_new[a] += change_azimuth
+
+        if change_azimuth <= 90:
+            east_new[a] = north_new[a] * sin(radians(change_azimuth))
+            north_new[a] *= cos(radians(change_azimuth))
+        elif 90 < change_azimuth <= 180:
+            angle = change_azimuth - 90
+            east_new[a] = north_new[a] * round(cos(radians(angle)), 3)
+            north_new[a] *= - sin(radians(angle))
+        elif 180 < change_azimuth <= 270:
+            angle = change_azimuth - 180
+            east_new[a] = - north_new[a] * round(sin(radians(angle)), 3)
+            north_new[a] *= - cos(radians(angle))
+        else:
+            angle = change_azimuth - 270
+            east_new[a] = - north_new[a] * round(cos(radians(angle)), 3)
+            north_new[a] *= sin(radians(angle))
+
+    return azimuth_new, north_new, east_new

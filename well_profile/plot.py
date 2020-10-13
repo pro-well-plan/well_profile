@@ -49,12 +49,14 @@ def plot_wellpath(wellpath, add_well=None, names=None):
         fig.update_layout(scene=dict(
             xaxis_title='East, m',
             yaxis_title='North, m',
-            zaxis_title='TVD, m'))
+            zaxis_title='TVD, m',
+            aspectmode='manual'))
     else:
         fig.update_layout(scene=dict(
             xaxis_title='East, ft',
             yaxis_title='North, ft',
-            zaxis_title='TVD, ft'))
+            zaxis_title='TVD, ft',
+            aspectmode='cube'))
     fig.update_scenes(zaxis_autorange="reversed")
 
     return fig
