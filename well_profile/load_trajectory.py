@@ -1,7 +1,8 @@
 from .plot import plot_wellpath
+from .equations import *
 from numpy import interp, linspace
-from math import radians, sin, cos, degrees, acos, tan
 import pandas as pd
+from math import degrees
 
 
 def load(data, cells_no=100, units='metric', set_start=None):
@@ -63,10 +64,7 @@ def load(data, cells_no=100, units='metric', set_start=None):
 
     dogleg = [0]
     for x in range(1, len(md_new)):
-        dogleg.append(acos(
-            cos(radians(inc_new[x])) * cos(radians(inc_new[x - 1]))
-            - sin(radians(inc_new[x])) * sin(radians(inc_new[x - 1])) * (1 - cos(radians(az_new[x] - az_new[x - 1])))
-        ))
+        dogleg.append(calc_dogleg(inc_new[x-1], inc_new[x], az_new[x-1], az_new[x]))
 
     if 'north' and 'east' in data[0]:
         north = [x['north'] for x in data]
@@ -89,17 +87,16 @@ def load(data, cells_no=100, units='metric', set_start=None):
         north = [0]
         east = [0]
         for x in range(1, len(md_new)):
-            delta_md = md_new[x] - md_new[x - 1]
-            if dogleg[x] == 0:
-                rf_constant = 1
-            else:
-                rf_constant = tan(dogleg[x] / 2) / (dogleg[x] / 2)
-            north_delta = 0.5 * delta_md * (sin(radians(inc_new[x - 1])) * cos(radians(az_new[x - 1]))
-                                            + sin(radians(inc_new[x])) * cos(radians(az_new[x]))) * rf_constant
-            north.append(north[-1] + north_delta)
-            east_delta = 0.5 * delta_md * (sin(radians(inc_new[x - 1])) * sin(radians(az_new[x - 1]))
-                                           + sin(radians(inc_new[x])) * sin(radians(az_new[x]))) * rf_constant
-            east.append(east[-1] + east_delta)
+            north.append(calc_north(north[-1],
+                                    md_new[x-1], md_new[x],
+                                    inc_new[x-1], inc_new[x],
+                                    az_new[x-1], az_new[x],
+                                    dogleg[x]))
+            east.append(calc_east(east[-1],
+                                  md_new[x - 1], md_new[x],
+                                  inc_new[x - 1], inc_new[x],
+                                  az_new[x - 1], az_new[x],
+                                  dogleg[x]))
 
     if 'tvd' in data[0]:
         tvd = [x['tvd'] for x in data]
@@ -114,13 +111,12 @@ def load(data, cells_no=100, units='metric', set_start=None):
     else:
         tvd = [md_new[0]]
         for x in range(1, len(md_new)):
-            delta_md = md_new[x] - md_new[x - 1]
-            if dogleg[x] == 0:
-                rf = 1
-            else:
-                rf = tan(dogleg[x] / 2) / (dogleg[x] / 2)
-            tvd_delta = 0.5 * delta_md * (cos(radians(inc_new[x - 1])) + cos(radians(inc_new[x]))) * rf
-            tvd.append(tvd[-1] + tvd_delta)
+            tvd.append(calc_tvd(tvd[-1],
+                                md_new[x-1],
+                                md_new[x],
+                                inc_new[x-1],
+                                inc_new[x],
+                                dogleg[x]))
 
     dogleg = [degrees(x) for x in dogleg]
 

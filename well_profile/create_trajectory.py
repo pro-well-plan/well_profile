@@ -1,8 +1,9 @@
 from .plot import plot_wellpath
-from numpy import arange, linspace, interp
-from math import radians, sin, cos, degrees, acos
 from .load_trajectory import define_sections
+from .equations import *
+from numpy import arange, linspace, interp
 import pandas as pd
+from math import degrees
 
 
 def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
@@ -70,10 +71,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     dogleg = [0]
     inc = inclination_new.copy()
     for x in range(1, len(md_new)):
-        dogleg.append(acos(
-            cos(radians(inc[x])) * cos(radians(inc[x - 1]))
-            - sin(radians(inc[x])) * sin(radians(inc[x - 1])) * (1 - cos(radians(azimuth[x] - azimuth[x - 1])))
-        ))
+        dogleg.append(calc_dogleg(inc[x - 1], inc[x], azimuth_new[x - 1], azimuth_new[x]))
     dogleg = [degrees(x) for x in dogleg]
 
     class WellDepths(object):
