@@ -5,7 +5,7 @@ import pandas as pd
 from math import degrees
 
 
-def load(data, units='metric', set_start=None, equidistant=False, cells_no=None):
+def load(data, units='metric', set_start=None, equidistant=False, cells_no=None, change_azimuth=None):
     """
     Load an existing wellpath.
     :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
@@ -13,6 +13,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None)
     :param set_start: set initial point in m {'north': 0, 'east': 0}
     :param equidistant: True to get same md difference between points
     :param cells_no: set number of cells if equidistant is True
+    :param change_azimuth: add specific degrees to azimuth values along the entire well
     :return: a wellpath object with 3D position
     """
 
@@ -46,6 +47,9 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None)
     md = [x['md'] for x in data]
     inc = [x['inclination'] for x in data]
     az = [x['azimuth'] for x in data]
+    if change_azimuth is not None:
+        for a in range(len(az)):
+            az[a] += change_azimuth
 
     for x, y in enumerate(md):      # change values to numbers if are strings
         if type(y) == str:
