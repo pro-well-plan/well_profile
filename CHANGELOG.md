@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.2.9] - 2020-10-14
+### Added
+- Possibility to keep original points when loading a wellpath
+- New parameter to manipulate azimuth for the entire well
+### Fixed
+- Minor issues
+
 ## [v0.1.9] - 2020-09-29
 ### Added
 - Set initial depth and coordinates for a new well
