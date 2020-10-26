@@ -149,6 +149,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
             self.north = [n + initial_point['north'] for n in north]
             self.east = [e + initial_point['east'] for e in east]
             self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
+            self.dls_resolution = dls_resolution
             self.sections = sections
             self.units = units
 
@@ -254,8 +255,8 @@ def define_sections(tvd, inc):
 
 def calc_dls(dogleg, md, resolution=30):
     dls = [0]
-    for x, y in enumerate(dogleg[1:]):
-        dls_new = y * resolution / (md[x] - md[x-1])
+    for x in range(1, len(dogleg)):
+        dls_new = dogleg[x] * resolution / (md[x] - md[x-1])
         dls.append(dls_new)
 
     return dls
