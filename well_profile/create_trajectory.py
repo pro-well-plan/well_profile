@@ -1,5 +1,5 @@
 from .plot import plot_wellpath
-from .load_trajectory import define_sections
+from .load_trajectory import define_sections, calc_dls
 from .equations import *
 from numpy import arange, linspace, interp
 import pandas as pd
@@ -7,7 +7,7 @@ from math import degrees
 
 
 def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
-        set_start=None, change_azimuth=None):
+        set_start=None, change_azimuth=None, dls_resolution=30):
     """
     Generate a wellpath.
     :param mdt: target depth, m or ft
@@ -24,6 +24,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
     :param units: 'metric' or 'english'
     :param set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
     :param change_azimuth: add specific degrees to azimuth values along the entire well
+    :param dls_resolution: base length to calculate dls
     :return: a wellpath object with 3D position
     """
 
@@ -88,6 +89,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
             self.inclination = [round(i, 2) for i in inclination_new]
             self.dogleg = dogleg
             self.azimuth = azimuth_new
+            self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
             self.sections = sections
             self.units = units
 

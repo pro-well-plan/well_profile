@@ -5,7 +5,8 @@ import pandas as pd
 from math import degrees
 
 
-def load(data, units='metric', set_start=None, equidistant=False, cells_no=None, change_azimuth=None):
+def load(data, units='metric', set_start=None, equidistant=False, cells_no=None, change_azimuth=None,
+         dls_resolution=30):
     """
     Load an existing wellpath.
     :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
@@ -14,6 +15,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
     :param equidistant: True to get same md difference between points
     :param cells_no: set number of cells if equidistant is True
     :param change_azimuth: add specific degrees to azimuth values along the entire well
+    :param dls_resolution: base length to calculate dls
     :return: a wellpath object with 3D position
     """
 
@@ -146,6 +148,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
             self.cells_no = cells_no
             self.north = [n + initial_point['north'] for n in north]
             self.east = [e + initial_point['east'] for e in east]
+            self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
             self.sections = sections
             self.units = units
 
@@ -247,3 +250,12 @@ def define_sections(tvd, inc):
                     sections.append('drop-off')
 
     return sections
+
+
+def calc_dls(dogleg, md, resolution=30):
+    dls = [0]
+    for x, y in enumerate(dogleg[1:]):
+        dls_new = y * resolution / (md[x] - md[x-1])
+        dls.append(dls_new)
+
+    return dls
