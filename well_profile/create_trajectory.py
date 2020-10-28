@@ -90,6 +90,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
             self.dogleg = dogleg
             self.azimuth = azimuth_new
             self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
+            self.dls_resolution = dls_resolution
             self.sections = sections
             self.units = units
 
