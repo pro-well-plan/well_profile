@@ -10,22 +10,26 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
         set_start=None, change_azimuth=None, dls_resolution=30):
     """
     Generate a wellpath.
-    :param mdt: target depth, m or ft
-    :param cells_no: number of cells
-    :param profile: 'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for
+
+    Arguments:
+        mdt: target depth, m or ft
+        cells_no: number of cells
+        profile: 'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for
                                                                                             Horizontal double curve
-    :param build_angle: building angle, °
-    :param kop: kick-off point, m or ft
-    :param eob: end of build, m or ft
-    :param sod: start of drop, m or ft
-    :param eod: end of drop, m or ft
-    :param kop2: kick-off point 2, m or ft
-    :param eob2: end of build 2, m or ft
-    :param units: 'metric' or 'english'
-    :param set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
-    :param change_azimuth: add specific degrees to azimuth values along the entire well
-    :param dls_resolution: base length to calculate dls
-    :return: a wellpath object with 3D position
+        build_angle: building angle, °
+        kop: kick-off point, m or ft
+        eob: end of build, m or ft
+        sod: start of drop, m or ft
+        eod: end of drop, m or ft
+        kop2: kick-off point 2, m or ft
+        eob2: end of build 2, m or ft
+        units: 'metric' or 'english'
+        set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
+        change_azimuth: add specific degrees to azimuth values along the entire well
+        dls_resolution: base length to calculate dls
+
+    Returns:
+        a wellpath object with 3D position
     """
 
     initial_point = {'north': 0, 'east': 0, 'depth': 0}

@@ -1,5 +1,7 @@
 ![](https://user-images.githubusercontent.com/52009346/69100304-2eb3e800-0a5d-11ea-9a3a-8e502af2120b.png)
 
+
+[![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/pro-well-plan/well_profile/blob/master/LICENSE.md)
 [![PyPI version](https://badge.fury.io/py/well-profile.svg)](https://badge.fury.io/py/well-profile)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://pwp-opensource.herokuapp.com/)

@@ -9,14 +9,18 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
          dls_resolution=30):
     """
     Load an existing wellpath.
-    :param data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-    :param units: 'metric' or 'english'
-    :param set_start: set initial point in m {'north': 0, 'east': 0}
-    :param equidistant: True to get same md difference between points
-    :param cells_no: set number of cells if equidistant is True
-    :param change_azimuth: add specific degrees to azimuth values along the entire well
-    :param dls_resolution: base length to calculate dls
-    :return: a wellpath object with 3D position
+
+    Arguments:
+        data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
+        units: 'metric' or 'english'
+        set_start: set initial point in m {'north': 0, 'east': 0}
+        equidistant: True to get same md difference between points
+        cells_no: set number of cells if equidistant is True
+        change_azimuth: add specific degrees to azimuth values along the entire well
+        dls_resolution: base length to calculate dls
+
+    Returns:
+        a wellpath object with 3D position
     """
 
     initial_point = {'north': 0, 'east': 0}
