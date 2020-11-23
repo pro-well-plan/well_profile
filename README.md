@@ -5,11 +5,15 @@
 [![PyPI version](https://badge.fury.io/py/well-profile.svg)](https://badge.fury.io/py/well-profile)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://pwp-opensource.herokuapp.com/)
-
+[![Documentation Status](https://readthedocs.org/projects/well_profile/badge/?version=latest)](http://well_profile.readthedocs.io/?badge=latest)
 
 ## Introduction
 well_profile is a tool to generate or load well profiles in 3D. Features are added as they
 are needed; suggestions and contributions of all kinds are very welcome.
+
+## Documentation
+
+See here for the [complete well_profile package documentation](https://well_profile.readthedocs.io/en/latest/).
 
 ## Getting Started
 
@@ -21,7 +25,6 @@ These instructions will get you a copy of the project up and running on your loc
     * `pip install well_profile`
 * Developers: Source code from [Github](https://github.com/pro-well-plan/well_profile)
     * `git clone https://github.com/pro-well-plan/well_profile`
-
     
 ## Contributing
 
