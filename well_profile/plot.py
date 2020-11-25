@@ -2,13 +2,18 @@ import pandas as pd
 import plotly.express as px
 
 
-def plot_wellpath(wellpath, add_well=None, names=None):
+def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
     """
     Plot a 3D Wellpath.
-    :param wellpath: a wellpath object with 3D position,
-    :param add_well: include a new well or list of wells
-    :param names: set name or list of names for wells included in the plot
-    :return: 3D Plot - plotly.graph_objects.Figure
+
+    Arguments:
+        wellpath: a wellpath object with 3D position,
+        add_well: include a new well or list of wells
+        names: set name or list of names for wells included in the plot
+        dark_mode: activate dark mode
+
+    Returns:
+        3D Plot - plotly.graph_objects.Figure
     """
 
     units = wellpath.units
@@ -43,7 +48,10 @@ def plot_wellpath(wellpath, add_well=None, names=None):
             result.replace({'well': {well_no: x}}, inplace=True)
             well_no += 1
 
-    fig = px.line_3d(result, x="east", y="north", z="tvd", color='well')
+    template = None
+    if dark_mode:
+        template = 'plotly_dark'
+    fig = px.line_3d(result, x="east", y="north", z="tvd", color='well', template=template)
 
     if units == 'metric':
         fig.update_layout(scene=dict(

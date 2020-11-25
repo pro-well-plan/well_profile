@@ -157,8 +157,8 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
             self.sections = sections
             self.units = units
 
-        def plot(self, add_well=None, names=None):
-            fig = plot_wellpath(self, add_well, names)
+        def plot(self, add_well=None, names=None, dark_mode=False):
+            fig = plot_wellpath(self, add_well, names, dark_mode)
             return fig
 
         def df(self):

@@ -98,8 +98,8 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
             self.sections = sections
             self.units = units
 
-        def plot(self, add_well=None, names=None):
-            fig = plot_wellpath(self, add_well, names)
+        def plot(self, add_well=None, names=None, dark_mode=False):
+            fig = plot_wellpath(self, add_well, names, dark_mode)
             return fig
 
         def df(self):
