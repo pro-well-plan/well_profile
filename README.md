@@ -26,7 +26,28 @@ These instructions will get you a copy of the project up and running on your loc
     * `pip install well_profile`
 * Developers: Source code from [Github](https://github.com/pro-well-plan/well_profile)
     * `git clone https://github.com/pro-well-plan/well_profile`
-    
+ 
+### Quick example
+
+Plotting 3 wellbores:
+* `Well 1 -> excel file: trajectory1.xlsx`
+* `Well 2 -> generated well`
+* `Well 3 -> excel file: trajectory2.xlsx`
+```
+import well_profile as wp
+well_1 = wp.load('trajectory1.xlsx')      # LOAD WELL 1
+well_2 = wp.get(6000, profile='J', kop=2000, eob=3000, build_angle=85, set_start={'east':2000})       # GET WELL 2 --> North: 0 m, East: 2000 m
+well_3 = wp.load('trajectory2.xlsx', set_start={'north':-3000})        # LOAD WELL 3 --> North: -3000 m, East: 0 m
+well_1.plot(add_well=[well_2, well_3],
+            names=['first well name',
+                   'second well name',
+                   'third well name']).show()        # Generate 3D plot for well 1 including wells 2 and 3
+```
+<a href="https://youtu.be/X7Bs9_7NdRM">
+   <img alt="Qries" src="https://well-profile.readthedocs.io/en/latest/_images/multiple_diff_loc.png"
+   width=700" height="400">
+</a>        
+
 ## Contributing
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
