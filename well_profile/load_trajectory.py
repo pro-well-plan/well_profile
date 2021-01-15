@@ -76,13 +76,13 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         for i in md_new:
             inc_new.append(interp(i, md, inc))
             az_new.append(interp(i, md, az))
+        depth_step = md_new[1] - md_new[0]
     else:
         md_new = md
         inc_new = inc
         az_new = az
         cells_no = len(md_new)
-
-    depth_step = md_new[1] - md_new[0]
+        depth_step = None
 
     dogleg = [0]
     for x in range(1, len(md_new)):

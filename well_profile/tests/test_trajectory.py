@@ -78,4 +78,3 @@ def run_assertions(self, my_wp, mdt):
     self.assertEqual(len(my_wp.md), len(my_wp.inclination), msg='wrong number of values in inclination')
     self.assertEqual(my_wp.cells_no, len(my_wp.dogleg), msg='wrong number of values in dogleg')
     self.assertEqual(len(my_wp.md), len(my_wp.azimuth), msg='wrong number of values in azimuth')
-    self.assertEqual(my_wp.md[1] - my_wp.md[0], my_wp.depth_step, msg='wrong value for depth step')
