@@ -50,9 +50,13 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         data = solve_key_similarities(data)
         data = data.to_dict('records')
 
-    md = [x['md'] for x in data]
-    inc = [x['inclination'] for x in data]
-    az = [x['azimuth'] for x in data]
+    if type(data[0]) is dict:
+        md = [x['md'] for x in data]
+        inc = [x['inclination'] for x in data]
+        az = [x['azimuth'] for x in data]
+    else:       # if data is not a list of dicts, but a list of lists
+        md, inc, az = data[:3]
+
     if change_azimuth is not None:
         for a in range(len(az)):
             az[a] += change_azimuth
@@ -116,7 +120,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
                                   az_new[x - 1], az_new[x],
                                   dogleg[x]))
 
-    if 'tvd' in data[0]:
+    if type(data[0]) is dict and 'tvd' in data[0]:
         tvd = [x['tvd'] for x in data]
         for x, y in enumerate(tvd):     # change values to numbers if are strings
             if type(y) == str:
@@ -127,14 +131,17 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         tvd = tvd_new
 
     else:
-        tvd = [md_new[0]]
-        for x in range(1, len(md_new)):
-            tvd.append(calc_tvd(tvd[-1],
-                                md_new[x-1],
-                                md_new[x],
-                                inc_new[x-1],
-                                inc_new[x],
-                                dogleg[x]))
+        if len(data) == 4:
+            tvd = data[3]
+        else:
+            tvd = [md_new[0]]
+            for x in range(1, len(md_new)):
+                tvd.append(calc_tvd(tvd[-1],
+                                    md_new[x-1],
+                                    md_new[x],
+                                    inc_new[x-1],
+                                    inc_new[x],
+                                    dogleg[x]))
 
     dogleg = [degrees(x) for x in dogleg]
 

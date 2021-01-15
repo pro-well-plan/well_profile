@@ -28,7 +28,7 @@ class TestCreate(TestCase):
 
         run_assertions(self, my_wp, 3790)
 
-    def test_load_from_data(self):
+    def test_load_from_dicts(self):
 
         data = [{'md': 0, 'tvd': 0, 'azimuth': 0, 'inclination': 0},
                 {'md': 1, 'tvd': 1, 'azimuth': 0, 'inclination': 0},
@@ -37,6 +37,17 @@ class TestCreate(TestCase):
                 {'md': 4, 'tvd': 4, 'azimuth': 0, 'inclination': 0},
                 {'md': 5, 'tvd': 5, 'azimuth': 0, 'inclination': 0},
                 ]
+
+        my_wp = load(data, cells_no=100)
+
+        run_assertions(self, my_wp, 5)
+
+    def test_load_from_lists(self):
+
+        data = [[0, 1, 2, 3, 4, 5],
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 1, 2, 3, 4, 5]]
 
         my_wp = load(data, cells_no=100)
 
