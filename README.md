@@ -6,7 +6,9 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://pwp-opensource.herokuapp.com/)
 [![Documentation Status](https://readthedocs.org/projects/well_profile/badge/?version=latest)](http://well_profile.readthedocs.io/?badge=latest)
+[![Build Status](https://www.travis-ci.org/pro-well-plan/well_profile.svg?branch=master)](https://www.travis-ci.org/pro-well-plan/well_profile)
 [![Downloads](https://pepy.tech/badge/well-profile)](https://pepy.tech/project/well-profile)
+
 
 ## Introduction
 well_profile is a tool to generate or load well profiles in 3D. Features are added as they
