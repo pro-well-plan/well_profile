@@ -5,11 +5,18 @@ python:
 
 before_install:
   - pip install -U pip
-
-cache: pip
+  - pip install -U pytest
 
 install:
-  - pip install -r requirements.txt
+  - pip install --editable ".[all]"
+  - pip install pytest pytest-cov coverage pathlib
 
 script:
   - pytest
+
+notifications:
+  email:
+    recipients:
+      - juan@prowellplan.com
+    on_success: change
+    on_failure: change
