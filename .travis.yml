@@ -1,8 +1,5 @@
 language: python
 
-python:
-  - 3.8
-  
 matrix:
   - name: "Python: 3.8"
       os: osx
