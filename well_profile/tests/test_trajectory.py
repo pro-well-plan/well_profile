@@ -1,6 +1,7 @@
 from unittest import TestCase
 from well_profile import get, load
 import pandas as pd
+import os
 
 
 class TestCreate(TestCase):
@@ -16,14 +17,13 @@ class TestCreate(TestCase):
             run_assertions(self, my_wp, 100)
 
     def test_load_from_excel(self):
-
-        my_wp = load('trajectory1.xlsx')
+        my_wp = load(os.path.join('trajectory1.xlsx'))
 
         run_assertions(self, my_wp, 3790)
 
     def test_load_from_df(self):
 
-        df = pd.read_excel('trajectory1.xlsx')
+        df = pd.read_excel(os.path.join('trajectory1.xlsx'))
         my_wp = load(df)
 
         run_assertions(self, my_wp, 3790)
@@ -55,13 +55,13 @@ class TestCreate(TestCase):
 
     def test_load_df(self):
 
-        my_wp = load(load('trajectory1.xlsx').df())
+        my_wp = load(load(os.path.join('trajectory1.xlsx')).df())
 
         run_assertions(self, my_wp, 3790)
 
     def test_load_initial(self):
 
-        my_wp = load('trajectory1.xlsx')
+        my_wp = load(os.path.join('trajectory1.xlsx'))
         my_wp_initial = my_wp.initial()
 
         self.assertIsInstance(my_wp, object, msg='main function is not returning an object')
