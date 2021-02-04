@@ -1,4 +1,4 @@
-numpy
-pandas
-xlrd
-plotly
+numpy==1.19.1
+pandas==1.1.1
+xlrd==1.2.0
+plotly==4.9.0
