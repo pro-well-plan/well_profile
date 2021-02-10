@@ -1,5 +1,4 @@
-![](https://user-images.githubusercontent.com/52009346/69100304-2eb3e800-0a5d-11ea-9a3a-8e502af2120b.png)
-
+[![Cover](https://github.com/pro-well-plan/opensource_apps/raw/master/resources/pwp-bgd.gif)](https://prowellplan.com)
 
 [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/pro-well-plan/well_profile/blob/master/LICENSE.md)
 [![PyPI version](https://badge.fury.io/py/well-profile.svg)](https://badge.fury.io/py/well-profile)
@@ -66,3 +65,5 @@ This project is licensed under the GNU Lesser General Public License v3.0 - see 
 
 
 *for further information contact juan@prowellplan.com*
+
+![](https://user-images.githubusercontent.com/52009346/69100304-2eb3e800-0a5d-11ea-9a3a-8e502af2120b.png)
