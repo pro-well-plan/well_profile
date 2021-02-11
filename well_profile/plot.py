@@ -2,12 +2,12 @@ import pandas as pd
 import plotly.express as px
 
 
-def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
+def plot_wellpath(well, add_well=None, names=None, dark_mode=False):
     """
     Plot a 3D Wellpath.
 
     Arguments:
-        wellpath: a wellpath object with 3D position,
+        well: a well object with 3D position,
         add_well: include a new well or list of wells
         names: set name or list of names for wells included in the plot
         dark_mode: activate dark mode
@@ -16,9 +16,9 @@ def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
         3D Plot - plotly.graph_objects.Figure
     """
 
-    units = wellpath.units
+    units = well.units
 
-    well1 = pd.DataFrame(list(zip(wellpath.tvd, wellpath.north, wellpath.east)), columns=['tvd', 'north', 'east'])
+    well1 = pd.DataFrame(well.trajectory)
     well1["well"] = 1
     result = well1
 
@@ -30,7 +30,7 @@ def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
 
         well_no = 2
         for x in add_well:
-            new_well = pd.DataFrame(list(zip(x.tvd, x.north, x.east)), columns=['tvd', 'north', 'east'])
+            new_well = pd.DataFrame(x.trayectory)
             new_well["well"] = well_no
             wells.append(new_well)
             well_no += 1

@@ -1,9 +1,10 @@
 from .plot import plot_wellpath
-from .load_trajectory import define_sections, calc_dls
+from .load_trajectory import define_sections
 from .equations import *
 from numpy import arange, linspace, interp
 import pandas as pd
 from math import degrees
+from .well import Well
 
 
 def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
@@ -82,33 +83,14 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
         dogleg.append(calc_dogleg(inc[x - 1], inc[x], azimuth_new[x - 1], azimuth_new[x]))
     dogleg = [degrees(x) for x in dogleg]
 
-    class WellDepths(object):
-        def __init__(self):
-            self.md = md_new
-            self.tvd = [x + initial_point['depth'] for x in tvd_new]
-            self.depth_step = depth_step
-            self.cells_no = cells_no
-            self.north = [x + initial_point['north'] for x in north_new]
-            self.east = [x + initial_point['east'] for x in east_new]
-            self.inclination = [round(i, 2) for i in inclination_new]
-            self.dogleg = dogleg
-            self.azimuth = azimuth_new
-            self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
-            self.dls_resolution = dls_resolution
-            self.sections = sections
-            self.units = units
+    data = {'md': md_new, 'tvd': [x + initial_point['depth'] for x in tvd_new],
+            'inclination': [round(i, 2) for i in inclination_new], 'azimuth': azimuth_new, 'dogleg': dogleg,
+            'north': [x + initial_point['north'] for x in north_new],
+            'east': [x + initial_point['east'] for x in east_new],
+            'dlsResolution': dls_resolution,
+            'depthStep': depth_step, 'cellsNo': cells_no, 'sections': sections, 'units': units}
 
-        def plot(self, add_well=None, names=None, dark_mode=False):
-            fig = plot_wellpath(self, add_well, names, dark_mode)
-            return fig
-
-        def df(self):
-            data_dict = {'md': self.md, 'tvd': self.tvd, 'inclination': self.inclination,
-                         'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
-            dataframe = pd.DataFrame(data_dict)
-            return dataframe
-
-    return WellDepths()
+    return Well(data)
 
 
 def vertical_section(profile, md, kop, depth_step):

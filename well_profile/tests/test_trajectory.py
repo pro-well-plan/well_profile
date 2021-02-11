@@ -63,19 +63,15 @@ class TestCreate(TestCase):
     def test_load_initial(self):
 
         my_wp = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
-        my_wp_initial = my_wp.initial()
+        my_wp_initial = my_wp._base_data
 
         self.assertIsInstance(my_wp, object, msg='main function is not returning an object')
         self.assertIsInstance(my_wp_initial, pd.DataFrame, msg='method is not returning a dataframe')
 
 
 def run_assertions(self, my_wp, mdt):
+    traj = my_wp.trajectory
     self.assertIsInstance(my_wp.cells_no, int, msg='cells_no is not an integer')
-    self.assertEqual(my_wp.md[-1], mdt, msg='Target depth not reached')
-    self.assertEqual(my_wp.md[0], my_wp.tvd[0], msg='MD and TVD are different at first cell')
-    self.assertEqual(len(my_wp.md), len(my_wp.tvd), msg='wrong number of values in tvd')
-    self.assertEqual(len(my_wp.md), len(my_wp.north), msg='wrong number of values in north')
-    self.assertEqual(len(my_wp.md), len(my_wp.east), msg='wrong number of values in east')
-    self.assertEqual(len(my_wp.md), len(my_wp.inclination), msg='wrong number of values in inclination')
-    self.assertEqual(my_wp.cells_no, len(my_wp.dogleg), msg='wrong number of values in dogleg')
-    self.assertEqual(len(my_wp.md), len(my_wp.azimuth), msg='wrong number of values in azimuth')
+    self.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
+    self.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
+    self.assertEqual(my_wp.cells_no, len(traj), msg='Number of cells is not correct')

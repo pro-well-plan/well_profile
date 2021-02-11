@@ -1,8 +1,8 @@
-from .plot import plot_wellpath
 from .equations import *
 from numpy import interp, linspace
 import pandas as pd
 from math import degrees
+from .well import Well
 
 
 def load(data, units='metric', set_start=None, equidistant=False, cells_no=None, change_azimuth=None,
@@ -25,18 +25,23 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
 
     initial_point = {'north': 0, 'east': 0}
 
+    base_data = False
+    data_initial = None
+
     if set_start is not None:
         for x in set_start:  # changing default values
             if x in initial_point:
                 initial_point[x] = set_start[x]
 
     if isinstance(data, pd.DataFrame):
+        base_data = True
         data_initial = data.copy()
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
 
     if ".xlsx" in data:
+        base_data = True
         data = pd.read_excel(data)  # open excel file with pandas
         data_initial = data.copy()
         data.dropna(inplace=True)
@@ -44,6 +49,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         data = data.to_dict('records')
 
     if ".csv" in data:
+        base_data = True
         data = pd.read_csv(data)  # open csv file with pandas
         data_initial = data.copy()
         data.dropna(inplace=True)
@@ -148,50 +154,18 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
     # Defining type of section
     sections = define_sections(tvd, inc_new)
 
-    class WellDepths(object):
-        def __init__(self):
-            self.md = md_new
-            self.tvd = tvd
-            self.inclination = inc_new
-            self.azimuth = az_new
-            self.dogleg = dogleg
-            self.depth_step = depth_step
-            self.cells_no = cells_no
-            self.north = [n + initial_point['north'] for n in north]
-            self.east = [e + initial_point['east'] for e in east]
-            self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
-            self.dls_resolution = dls_resolution
-            self.sections = sections
-            self.units = units
+    data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
+            'north': [n + initial_point['north'] for n in north],
+            'east': [e + initial_point['east'] for e in east],
+            'dlsResolution': dls_resolution,
+            'depthStep': depth_step, 'cellsNo': cells_no, 'sections': sections, 'units': units}
 
-        def trajectory(self):
-            trajectory = []
-            for point in range(len(self.md)):
-                trajectory.append({'md': self.md[point],
-                                   'tvd': self.tvd[point],
-                                   'inc': self.inclination[point],
-                                   'azi': self.azimuth[point],
-                                   'dl': self.dogleg[point],
-                                   'north': self.north[point],
-                                   'east': self.east[point],
-                                   'dls': self.dls[point],
-                                   'sectionType': self.sections[point]})
-            return trajectory
+    well = Well(data)
 
-        def plot(self, add_well=None, names=None, dark_mode=False):
-            fig = plot_wellpath(self, add_well, names, dark_mode)
-            return fig
+    if base_data:
+        well._base_data = data_initial
 
-        def df(self):
-            data_dict = {'md': self.md, 'tvd': self.tvd, 'inclination': self.inclination,
-                         'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
-            dataframe = pd.DataFrame(data_dict)
-            return dataframe
-
-        def initial(self):
-            return data_initial
-
-    return WellDepths()
+    return well
 
 
 def solve_key_similarities(data):
@@ -276,12 +250,3 @@ def define_sections(tvd, inc):
                     sections.append('drop-off')
 
     return sections
-
-
-def calc_dls(dogleg, md, resolution=30):
-    dls = [0]
-    for x in range(1, len(dogleg)):
-        dls_new = dogleg[x] * resolution / (md[x] - md[x-1])
-        dls.append(dls_new)
-
-    return dls
