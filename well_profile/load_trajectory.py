@@ -164,6 +164,20 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
             self.sections = sections
             self.units = units
 
+        def trajectory(self):
+            trajectory = []
+            for point in range(len(self.md)):
+                trajectory.append({'md': self.md[point],
+                                   'tvd': self.tvd[point],
+                                   'inc': self.inclination[point],
+                                   'azi': self.azimuth[point],
+                                   'dl': self.dogleg[point],
+                                   'north': self.north[point],
+                                   'east': self.east[point],
+                                   'dls': self.dls[point],
+                                   'sectionType': self.sections[point]})
+            return trajectory
+
         def plot(self, add_well=None, names=None, dark_mode=False):
             fig = plot_wellpath(self, add_well, names, dark_mode)
             return fig
