@@ -137,17 +137,14 @@ def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, 
         tvd = tvd_new
 
     else:
-        if len(data) == 4:
-            tvd = data[3]
-        else:
-            tvd = [md_new[0]]
-            for x in range(1, len(md_new)):
-                tvd.append(calc_tvd(tvd[-1],
-                                    md_new[x-1],
-                                    md_new[x],
-                                    inc_new[x-1],
-                                    inc_new[x],
-                                    dogleg[x]))
+        tvd = [md_new[0]]
+        for x in range(1, len(md_new)):
+            tvd.append(calc_tvd(tvd[-1],
+                                md_new[x-1],
+                                md_new[x],
+                                inc_new[x-1],
+                                inc_new[x],
+                                dogleg[x]))
 
     dogleg = [degrees(x) for x in dogleg]
 
