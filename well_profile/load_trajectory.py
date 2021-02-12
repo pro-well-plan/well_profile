@@ -5,7 +5,7 @@ from math import degrees
 from .well import Well
 
 
-def load(data, units='metric', set_start=None, equidistant=False, cells_no=None, change_azimuth=None,
+def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, change_azimuth=None,
          dls_resolution=30):
     """
     Load an existing wellpath.

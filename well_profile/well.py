@@ -22,8 +22,8 @@ class Well(object):
                                     'dls': self.dls[point],
                                     'sectionType': data['sections'][point]})
 
-    def plot(self, add_well=None, names=None, dark_mode=False):
-        fig = plot_wellpath(self, add_well, names, dark_mode)
+    def plot(self, add_well=None, names=None, style=None):
+        fig = plot_wellpath(self, add_well, names, style)
         return fig
 
     def df(self):
