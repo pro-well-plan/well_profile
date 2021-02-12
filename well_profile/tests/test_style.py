@@ -19,7 +19,7 @@ class TestCreate(TestCase):
 
 def run_assertions(self, well, mdt):
     traj = well.trajectory
-    self.assertIsInstance(well.cells_no, int, msg='cells_no is not an integer')
+    self.assertIsInstance(well.points, int, msg='points is not an integer')
     self.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
     self.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
-    self.assertEqual(well.cells_no, len(traj), msg='Number of cells is not correct')
+    self.assertEqual(well.points, len(traj), msg='Number of points is not correct')

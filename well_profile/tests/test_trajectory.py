@@ -10,8 +10,8 @@ class TestCreate(TestCase):
         profile = ['V', 'J', 'S', 'H1', 'H2']
 
         for x in profile:
-            well = get(100, cells_no=100, profile=x, build_angle=45, kop=20, eob=40, sod=60, eod=80,
-                        kop2=60, eob2=80)
+            well = get(100, points=100, profile=x, build_angle=45, kop=20, eob=40, sod=60, eod=80,
+                       kop2=60, eob2=80)
 
             run_assertions(self, well, 100)
 
@@ -38,7 +38,7 @@ class TestCreate(TestCase):
                 {'md': 5, 'tvd': 5, 'azimuth': 0, 'inclination': 0},
                 ]
 
-        well = load(data, cells_no=100)
+        well = load(data, points=100)
 
         run_assertions(self, well, 5)
 
@@ -49,7 +49,7 @@ class TestCreate(TestCase):
                 [0, 0, 0, 0, 0, 0],
                 [0, 1, 2, 3, 4, 5]]
 
-        well = load(data, cells_no=100)
+        well = load(data, points=100)
 
         run_assertions(self, well, 5)
 
@@ -71,7 +71,7 @@ class TestCreate(TestCase):
 
 def run_assertions(self, well, mdt):
     traj = well.trajectory
-    self.assertIsInstance(well.cells_no, int, msg='cells_no is not an integer')
+    self.assertIsInstance(well.points, int, msg='points is not an integer')
     self.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
     self.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
-    self.assertEqual(well.cells_no, len(traj), msg='Number of cells is not correct')
+    self.assertEqual(well.points, len(traj), msg='Number of points is not correct')

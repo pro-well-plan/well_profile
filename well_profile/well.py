@@ -6,7 +6,7 @@ import pandas as pd
 class Well(object):
     def __init__(self, data):
         self.depth_step = data['depthStep']
-        self.cells_no = data['cellsNo']
+        self.points = data['points']
         self.dls = calc_dls(data['dogleg'], data['md'], resolution=data['dlsResolution'])
         self.dls_resolution = data['dlsResolution']
         self.units = data['units']
@@ -35,3 +35,24 @@ class Well(object):
         set specific location lat and lon in decimal degrees
         """
         self.location = {'lat': lat, 'lon': lon}
+
+
+def define_sections(tvd, inc):
+    sections = ['vertical', 'vertical']
+    for z in range(2, len(tvd)):
+        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
+        if inc[z] == 0:  # Vertical Section
+            sections.append('vertical')
+        else:
+            if round(inc[z], 2) == round(inc[z - 1], 2):
+                if delta_tvd == 0:
+                    sections.append('horizontal')  # Horizontal Section
+                else:
+                    sections.append('hold')  # Straight Inclined Section
+            else:
+                if inc[z] > inc[z - 1]:  # Built-up Section
+                    sections.append('build-up')
+                if inc[z] < inc[z - 1]:  # Drop-off Section
+                    sections.append('drop-off')
+
+    return sections

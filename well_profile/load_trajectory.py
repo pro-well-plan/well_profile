@@ -2,10 +2,10 @@ from .equations import *
 from numpy import interp, linspace
 import pandas as pd
 from math import degrees
-from .well import Well
+from .well import Well, define_sections
 
 
-def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, change_azimuth=None,
+def load(data, units='metric', set_start=None, equidistant=True, points=None, change_azimuth=None,
          dls_resolution=30):
     """
     Load an existing wellpath.
@@ -15,7 +15,7 @@ def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, 
         units: 'metric' or 'english'
         set_start: set initial point in m {'north': 0, 'east': 0}
         equidistant: True to get same md difference between points
-        cells_no: set number of cells if equidistant is True
+        points: set number of points if equidistant is True
         change_azimuth: add specific degrees to azimuth values along the entire well
         dls_resolution: base length to calculate dls
 
@@ -74,9 +74,9 @@ def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, 
             az[x] = float(az[x].split(",", 1)[0])
 
     if equidistant:
-        if cells_no is None:
-            cells_no = len(data)
-        md_new = list(linspace(min(md), max(md), num=cells_no))
+        if points is None:
+            points = len(data)
+        md_new = list(linspace(min(md), max(md), num=points))
         inc_new = []
         az_new = []
         for i in md_new:
@@ -87,7 +87,7 @@ def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, 
         md_new = md
         inc_new = inc
         az_new = az
-        cells_no = len(md_new)
+        points = len(md_new)
         depth_step = None
 
     dogleg = [0]
@@ -155,7 +155,7 @@ def load(data, units='metric', set_start=None, equidistant=True, cells_no=None, 
             'north': [n + initial_point['north'] for n in north],
             'east': [e + initial_point['east'] for e in east],
             'dlsResolution': dls_resolution,
-            'depthStep': depth_step, 'cellsNo': cells_no, 'sections': sections, 'units': units}
+            'depthStep': depth_step, 'points': points, 'sections': sections, 'units': units}
 
     well = Well(data)
 
@@ -226,24 +226,3 @@ def solve_key_similarities(data):
         true_key += 1
 
     return data
-
-
-def define_sections(tvd, inc):
-    sections = ['vertical', 'vertical']
-    for z in range(2, len(tvd)):
-        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
-        if inc[z] == 0:  # Vertical Section
-            sections.append('vertical')
-        else:
-            if round(inc[z], 2) == round(inc[z - 1], 2):
-                if delta_tvd == 0:
-                    sections.append('horizontal')  # Horizontal Section
-                else:
-                    sections.append('hold')  # Straight Inclined Section
-            else:
-                if inc[z] > inc[z - 1]:  # Built-up Section
-                    sections.append('build-up')
-                if inc[z] < inc[z - 1]:  # Drop-off Section
-                    sections.append('drop-off')
-
-    return sections
