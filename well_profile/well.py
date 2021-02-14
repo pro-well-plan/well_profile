@@ -7,7 +7,8 @@ class Well(object):
     def __init__(self, data):
         self.depth_step = data['depthStep']
         self.points = data['points']
-        self.dls = calc_dls(data['dogleg'], data['md'], resolution=data['dlsResolution'])
+        data['dls'] = calc_dls(data['dogleg'], data['md'], resolution=data['dlsResolution'])
+        data['delta'] = get_delta(data)
         self.dls_resolution = data['dlsResolution']
         self.units = data['units']
         self.trajectory = []
@@ -19,8 +20,9 @@ class Well(object):
                                     'dl': data['dogleg'][point],
                                     'north': data['north'][point],
                                     'east': data['east'][point],
-                                    'dls': self.dls[point],
-                                    'sectionType': data['sections'][point]})
+                                    'dls': data['dls'][point],
+                                    'sectionType': data['sections'][point],
+                                    'delta': data['delta'][point]})
 
     def plot(self, add_well=None, names=None, style=None):
         fig = plot_wellpath(self, add_well, names, style)
@@ -56,3 +58,26 @@ def define_sections(tvd, inc):
                     sections.append('drop-off')
 
     return sections
+
+
+def get_delta(trajectory):
+    delta = [{'md': 0,
+              'tvd': 0,
+              'inc': 0,
+              'azi': 0,
+              'dl': 0,
+              'dls': 0,
+              'north': 0,
+              'east': 0}]
+
+    for idx in range(1, len(trajectory['md'])):
+        delta.append({'md': trajectory['md'][idx] - trajectory['md'][idx-1],
+                      'tvd': trajectory['tvd'][idx] - trajectory['tvd'][idx-1],
+                      'inc': trajectory['inclination'][idx] - trajectory['inclination'][idx-1],
+                      'azi': trajectory['azimuth'][idx] - trajectory['azimuth'][idx-1],
+                      'dl': trajectory['dogleg'][idx] - trajectory['dogleg'][idx-1],
+                      'dls': trajectory['dls'][idx] - trajectory['dls'][idx-1],
+                      'north': trajectory['north'][idx] - trajectory['north'][idx-1],
+                      'east': trajectory['east'][idx] - trajectory['east'][idx-1]})
+
+    return delta
