@@ -1,3 +1,8 @@
+|bgd|
+
+.. |bgd| image:: https://github.com/pro-well-plan/opensource_apps/raw/master/resources/pwp-bgd.gif
+
+
 Installation
 ============
 

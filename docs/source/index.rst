@@ -1,3 +1,7 @@
+|bgd|
+
+.. |bgd| image:: https://github.com/pro-well-plan/opensource_apps/raw/master/resources/pwp-bgd.gif
+
 
 well_profile - wellbore 3D trajectories
 =======================================
