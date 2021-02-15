@@ -36,6 +36,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
     if isinstance(data, pd.DataFrame):
         base_data = True
         data_initial = data.copy()
+        data.dropna(axis=1, how='all', inplace=True)
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
@@ -44,6 +45,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         base_data = True
         data = pd.read_excel(data)  # open excel file with pandas
         data_initial = data.copy()
+        data.dropna(axis=1, how='all', inplace=True)
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
@@ -52,6 +54,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         base_data = True
         data = pd.read_csv(data)  # open csv file with pandas
         data_initial = data.copy()
+        data.dropna(axis=1, how='all', inplace=True)
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
@@ -184,8 +187,7 @@ def solve_key_similarities(data):
                         'AZI', 'AZI(°)', 'AZI (°)',
                         'Azimuth', 'Azimuth(°)', 'Azimuth (°)']
 
-    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)',
-                        'TVD(m)', 'TVD(ft)']
+    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)']
 
     north_similarities = ['NORTH', 'NORTH(m)', 'NORTH(ft)',
                           'NORTH (m)', 'NORTH (ft)',
@@ -203,8 +205,8 @@ def solve_key_similarities(data):
                         'East', 'East(m)', 'East(ft)',
                         'East (m)', 'East (ft)',
                         'Easting(m)', 'Easting(ft)'
-                                      'Easting (m)', ' Easting(ft)'
-                                                     'E/W (m)', 'E/W (ft)',
+                        'Easting (m)', ' Easting(ft)'
+                        'E/W (m)', 'E/W (ft)',
                         'E/W(m)', 'E/W(ft)',
                         'Ew (m)', 'Ew (ft)',
                         'Ew(m)', 'Ew(ft)']

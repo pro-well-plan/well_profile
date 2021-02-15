@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 setup(
     name='well_profile',
     packages=['well_profile'],
-    version='0.4.1',
+    version='0.5.0b',
     license='LGPL v3',
     description='Well Profile Builder',
     long_description=long_description,
@@ -13,7 +13,7 @@ setup(
     author='Pro Well Plan AS',
     author_email='juan@prowellplan.com',
     url='https://github.com/pro-well-plan/well_profile',
-    keywords='drilling',
+    keywords=['drilling', 'well', 'trajectory', 'engineering'],
     classifiers=['Programming Language :: Python :: 3',
                  'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
                  'Natural Language :: English',
@@ -21,5 +21,5 @@ setup(
                  'Topic :: Software Development',
                  'Topic :: Software Development :: Libraries',
                  'Topic :: Utilities'],
-    install_requires=['numpy', 'pandas', 'xlrd', 'plotly']
+    install_requires=['numpy', 'pandas', 'openpyxl', 'plotly']
 )
