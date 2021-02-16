@@ -28,7 +28,21 @@ These instructions will get you a copy of the project up and running on your loc
 * Developers: Source code from [Github](https://github.com/pro-well-plan/well_profile)
     * `git clone https://github.com/pro-well-plan/well_profile`
  
-### Quick example
+### Quick examples
+
+Color by specified parameter: `e.g. 'dls'|'dl'|'tvd'|'md'|'inc'|'azi'`
+```
+import well_profile as wp
+well = wp.load('trajectory1.xlsx')     # LOAD WELL
+well.plot(style={'color': 'dls', 'size': 5}).show()
+```
+[![](https://user-images.githubusercontent.com/52009346/108047411-0e028580-7046-11eb-9de9-84c1cda2c903.png)](https://well-profile.readthedocs.io/en/latest/)
+
+Also with dark mode:
+```
+well.plot(style={'darkMode': True, 'color': 'dls', 'size': 5}).show()
+```
+[![](https://user-images.githubusercontent.com/52009346/108048173-fed00780-7046-11eb-89f8-2a3b437b3047.png)](https://well-profile.readthedocs.io/en/latest/)
 
 Plotting 3 wellbores:
 * `Well 1 -> excel file: trajectory1.xlsx`

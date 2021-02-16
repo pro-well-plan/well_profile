@@ -1,24 +1,28 @@
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 
-def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
+def plot_wellpath(well, add_well=None, names=None, style=None):
     """
     Plot a 3D Wellpath.
 
     Arguments:
-        wellpath: a wellpath object with 3D position,
+        well: a well object with 3D position,
         add_well: include a new well or list of wells
         names: set name or list of names for wells included in the plot
-        dark_mode: activate dark mode
+        style: {'darkMode': bool, # activate dark mode. default = False
+                'color': str, # color by specific property. e.g. 'dls'|'dl'|'tvd'|'md'|'inc'|'azi'. default = None
+                'size': num, # marker size. default = 2
+                }
 
     Returns:
         3D Plot - plotly.graph_objects.Figure
     """
 
-    units = wellpath.units
+    units = well.units
 
-    well1 = pd.DataFrame(list(zip(wellpath.tvd, wellpath.north, wellpath.east)), columns=['tvd', 'north', 'east'])
+    well1 = pd.DataFrame(well.trajectory)
     well1["well"] = 1
     result = well1
 
@@ -30,7 +34,7 @@ def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
 
         well_no = 2
         for x in add_well:
-            new_well = pd.DataFrame(list(zip(x.tvd, x.north, x.east)), columns=['tvd', 'north', 'east'])
+            new_well = pd.DataFrame(x.trajectory)
             new_well["well"] = well_no
             wells.append(new_well)
             well_no += 1
@@ -48,10 +52,33 @@ def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
             result.replace({'well': {well_no: x}}, inplace=True)
             well_no += 1
 
+    set_style = {'darkMode': False, 'color': None, 'size': 2}
+    if style is not None:
+        for key in style.keys():
+            set_style[key] = style[key]
+
     template = None
-    if dark_mode:
+    if set_style['darkMode']:
         template = 'plotly_dark'
-    fig = px.line_3d(result, x="east", y="north", z="tvd", color='well', template=template)
+
+    if len(result.well.unique()) > 1 or set_style['color'] is None:
+        color = 'well'
+        fig = px.line_3d(result, x="east", y="north", z="tvd", color=color)
+
+    else:
+        fig = go.Figure(data=[go.Scatter3d(
+            x=result['east'],
+            y=result['north'],
+            z=result['tvd'],
+            mode='markers',
+            marker=dict(
+                size=set_style['size'],
+                color=result[set_style['color']],  # set color to an array/list of desired values
+                showscale=True,
+                opacity=0.8
+            ),
+            legendgroup=True,
+        )])
 
     if units == 'metric':
         fig.update_layout(scene=dict(
@@ -64,7 +91,8 @@ def plot_wellpath(wellpath, add_well=None, names=None, dark_mode=False):
             xaxis_title='East, ft',
             yaxis_title='North, ft',
             zaxis_title='TVD, ft',
-            aspectmode='cube'))
+            aspectmode='manual'))
     fig.update_scenes(zaxis_autorange="reversed")
+    fig.layout.template = template
 
     return fig

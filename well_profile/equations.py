@@ -93,3 +93,19 @@ def calc_rf(dogleg):
         rf = tan(dogleg / 2) / (dogleg / 2)
 
     return rf
+
+
+def calc_dls(dogleg, md, resolution=30):
+    """
+    Calculate dogleg severity with a defined resolution
+    :param dogleg: dogleg between previous and current point
+    :param md: measured depth
+    :param resolution: depth window to check
+    :return: dls
+    """
+    dls = [0]
+    for x in range(1, len(dogleg)):
+        dls_new = dogleg[x] * resolution / (md[x] - md[x-1])
+        dls.append(dls_new)
+
+    return dls

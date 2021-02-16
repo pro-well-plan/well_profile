@@ -1,19 +1,17 @@
-from .plot import plot_wellpath
-from .load_trajectory import define_sections, calc_dls
 from .equations import *
 from numpy import arange, linspace, interp
-import pandas as pd
 from math import degrees
+from .well import Well, define_sections
 
 
-def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
+def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
         set_start=None, change_azimuth=None, dls_resolution=30):
     """
     Generate a wellpath.
 
     Arguments:
         mdt: target depth, m or ft
-        cells_no: number of cells
+        points: number of points
         profile: 'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for
                                                                                             Horizontal double curve
         build_angle: building angle, °
@@ -63,7 +61,7 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
         tvd, north, east, inclination, azimuth = create_h2_well(mdt, md, kop, eob, kop2, eob2, build_angle, depth_step)
 
     # Re-arranging
-    md_new = list(linspace(0, mdt, num=cells_no))
+    md_new = list(linspace(0, mdt, num=points))
     depth_step = md_new[1] - md_new[0]
     tvd_new = [interp(x, md, tvd) for x in md_new]
     north_new = [interp(x, md, north) for x in md_new]
@@ -82,33 +80,14 @@ def get(mdt, cells_no=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=
         dogleg.append(calc_dogleg(inc[x - 1], inc[x], azimuth_new[x - 1], azimuth_new[x]))
     dogleg = [degrees(x) for x in dogleg]
 
-    class WellDepths(object):
-        def __init__(self):
-            self.md = md_new
-            self.tvd = [x + initial_point['depth'] for x in tvd_new]
-            self.depth_step = depth_step
-            self.cells_no = cells_no
-            self.north = [x + initial_point['north'] for x in north_new]
-            self.east = [x + initial_point['east'] for x in east_new]
-            self.inclination = [round(i, 2) for i in inclination_new]
-            self.dogleg = dogleg
-            self.azimuth = azimuth_new
-            self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
-            self.dls_resolution = dls_resolution
-            self.sections = sections
-            self.units = units
+    data = {'md': md_new, 'tvd': [x + initial_point['depth'] for x in tvd_new],
+            'inclination': [round(i, 2) for i in inclination_new], 'azimuth': azimuth_new, 'dogleg': dogleg,
+            'north': [x + initial_point['north'] for x in north_new],
+            'east': [x + initial_point['east'] for x in east_new],
+            'dlsResolution': dls_resolution,
+            'depthStep': depth_step, 'points': points, 'sections': sections, 'units': units}
 
-        def plot(self, add_well=None, names=None, dark_mode=False):
-            fig = plot_wellpath(self, add_well, names, dark_mode)
-            return fig
-
-        def df(self):
-            data_dict = {'md': self.md, 'tvd': self.tvd, 'inclination': self.inclination,
-                         'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
-            dataframe = pd.DataFrame(data_dict)
-            return dataframe
-
-    return WellDepths()
+    return Well(data)
 
 
 def vertical_section(profile, md, kop, depth_step):
@@ -170,13 +149,13 @@ def create_s_well(mdt, md, kop, eob, sod, eod, build_angle, depth_step):
 
     # Drop section
     s = depth_step
-    cells_drop = round((eod - sod) / depth_step)
-    theta_delta = radians(build_angle) / cells_drop
+    points_drop = round((eod - sod) / depth_step)
+    theta_delta = radians(build_angle) / points_drop
     theta = radians(build_angle)
     r = s / theta_delta
     z_checkpoint = tvd[-1]
     hz_checkpoint = north[-1]
-    for x in range(cells_drop):
+    for x in range(points_drop):
         z_displacement = r * (sin(theta) - sin(theta - (theta_delta * (x + 1))))
         tvd.append(round(z_checkpoint + z_displacement, 2))
 
@@ -330,14 +309,14 @@ def create_h2_well(mdt, md, kop, eob, kop2, eob2, build_angle, depth_step):
     # Build section 2
     s = depth_step
     build_angle = 90 - build_angle
-    cells_drop = round((eob2 - kop2) / depth_step)
-    theta_delta = radians(build_angle) / cells_drop
+    points_drop = round((eob2 - kop2) / depth_step)
+    theta_delta = radians(build_angle) / points_drop
     theta = radians(build_angle)
     r = s / theta_delta
     z_checkpoint = tvd[-1]
     hz_checkpoint = north[-1]
 
-    for x in range(cells_drop):
+    for x in range(points_drop):
         hz_displacement = r * (sin(theta) - sin(theta - (theta_delta * (x + 1))))
         north.append(round(hz_checkpoint + hz_displacement, 2))
         inclination.append(inclination[-1] + degrees(theta_delta))

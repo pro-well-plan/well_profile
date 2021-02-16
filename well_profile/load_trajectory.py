@@ -1,11 +1,11 @@
-from .plot import plot_wellpath
 from .equations import *
 from numpy import interp, linspace
 import pandas as pd
 from math import degrees
+from .well import Well, define_sections
 
 
-def load(data, units='metric', set_start=None, equidistant=False, cells_no=None, change_azimuth=None,
+def load(data, units='metric', set_start=None, equidistant=True, points=None, change_azimuth=None,
          dls_resolution=30):
     """
     Load an existing wellpath.
@@ -15,7 +15,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         units: 'metric' or 'english'
         set_start: set initial point in m {'north': 0, 'east': 0}
         equidistant: True to get same md difference between points
-        cells_no: set number of cells if equidistant is True
+        points: set number of points if equidistant is True
         change_azimuth: add specific degrees to azimuth values along the entire well
         dls_resolution: base length to calculate dls
 
@@ -25,27 +25,36 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
 
     initial_point = {'north': 0, 'east': 0}
 
+    base_data = False
+    data_initial = None
+
     if set_start is not None:
         for x in set_start:  # changing default values
             if x in initial_point:
                 initial_point[x] = set_start[x]
 
     if isinstance(data, pd.DataFrame):
+        base_data = True
         data_initial = data.copy()
+        data.dropna(axis=1, how='all', inplace=True)
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
 
     if ".xlsx" in data:
+        base_data = True
         data = pd.read_excel(data)  # open excel file with pandas
         data_initial = data.copy()
+        data.dropna(axis=1, how='all', inplace=True)
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
 
     if ".csv" in data:
+        base_data = True
         data = pd.read_csv(data)  # open csv file with pandas
         data_initial = data.copy()
+        data.dropna(axis=1, how='all', inplace=True)
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
@@ -68,9 +77,9 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
             az[x] = float(az[x].split(",", 1)[0])
 
     if equidistant:
-        if cells_no is None:
-            cells_no = len(data)
-        md_new = list(linspace(min(md), max(md), num=cells_no))
+        if points is None:
+            points = len(data)
+        md_new = list(linspace(min(md), max(md), num=points))
         inc_new = []
         az_new = []
         for i in md_new:
@@ -81,7 +90,7 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         md_new = md
         inc_new = inc
         az_new = az
-        cells_no = len(md_new)
+        points = len(md_new)
         depth_step = None
 
     dogleg = [0]
@@ -131,53 +140,32 @@ def load(data, units='metric', set_start=None, equidistant=False, cells_no=None,
         tvd = tvd_new
 
     else:
-        if len(data) == 4:
-            tvd = data[3]
-        else:
-            tvd = [md_new[0]]
-            for x in range(1, len(md_new)):
-                tvd.append(calc_tvd(tvd[-1],
-                                    md_new[x-1],
-                                    md_new[x],
-                                    inc_new[x-1],
-                                    inc_new[x],
-                                    dogleg[x]))
+        tvd = [md_new[0]]
+        for x in range(1, len(md_new)):
+            tvd.append(calc_tvd(tvd[-1],
+                                md_new[x-1],
+                                md_new[x],
+                                inc_new[x-1],
+                                inc_new[x],
+                                dogleg[x]))
 
     dogleg = [degrees(x) for x in dogleg]
 
     # Defining type of section
     sections = define_sections(tvd, inc_new)
 
-    class WellDepths(object):
-        def __init__(self):
-            self.md = md_new
-            self.tvd = tvd
-            self.inclination = inc_new
-            self.azimuth = az_new
-            self.dogleg = dogleg
-            self.depth_step = depth_step
-            self.cells_no = cells_no
-            self.north = [n + initial_point['north'] for n in north]
-            self.east = [e + initial_point['east'] for e in east]
-            self.dls = calc_dls(self.dogleg, self.md, resolution=dls_resolution)
-            self.dls_resolution = dls_resolution
-            self.sections = sections
-            self.units = units
+    data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
+            'north': [n + initial_point['north'] for n in north],
+            'east': [e + initial_point['east'] for e in east],
+            'dlsResolution': dls_resolution,
+            'depthStep': depth_step, 'points': points, 'sections': sections, 'units': units}
 
-        def plot(self, add_well=None, names=None, dark_mode=False):
-            fig = plot_wellpath(self, add_well, names, dark_mode)
-            return fig
+    well = Well(data)
 
-        def df(self):
-            data_dict = {'md': self.md, 'tvd': self.tvd, 'inclination': self.inclination,
-                         'azimuth': self.azimuth, 'north': self.north, 'east': self.east}
-            dataframe = pd.DataFrame(data_dict)
-            return dataframe
+    if base_data:
+        well._base_data = data_initial
 
-        def initial(self):
-            return data_initial
-
-    return WellDepths()
+    return well
 
 
 def solve_key_similarities(data):
@@ -199,8 +187,7 @@ def solve_key_similarities(data):
                         'AZI', 'AZI(°)', 'AZI (°)',
                         'Azimuth', 'Azimuth(°)', 'Azimuth (°)']
 
-    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)',
-                        'TVD(m)', 'TVD(ft)']
+    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)']
 
     north_similarities = ['NORTH', 'NORTH(m)', 'NORTH(ft)',
                           'NORTH (m)', 'NORTH (ft)',
@@ -218,8 +205,8 @@ def solve_key_similarities(data):
                         'East', 'East(m)', 'East(ft)',
                         'East (m)', 'East (ft)',
                         'Easting(m)', 'Easting(ft)'
-                                      'Easting (m)', ' Easting(ft)'
-                                                     'E/W (m)', 'E/W (ft)',
+                        'Easting (m)', ' Easting(ft)'
+                        'E/W (m)', 'E/W (ft)',
                         'E/W(m)', 'E/W(ft)',
                         'Ew (m)', 'Ew (ft)',
                         'Ew(m)', 'Ew(ft)']
@@ -241,33 +228,3 @@ def solve_key_similarities(data):
         true_key += 1
 
     return data
-
-
-def define_sections(tvd, inc):
-    sections = ['vertical', 'vertical']
-    for z in range(2, len(tvd)):
-        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
-        if inc[z] == 0:  # Vertical Section
-            sections.append('vertical')
-        else:
-            if round(inc[z], 2) == round(inc[z - 1], 2):
-                if delta_tvd == 0:
-                    sections.append('horizontal')  # Horizontal Section
-                else:
-                    sections.append('hold')  # Straight Inclined Section
-            else:
-                if inc[z] > inc[z - 1]:  # Built-up Section
-                    sections.append('build-up')
-                if inc[z] < inc[z - 1]:  # Drop-off Section
-                    sections.append('drop-off')
-
-    return sections
-
-
-def calc_dls(dogleg, md, resolution=30):
-    dls = [0]
-    for x in range(1, len(dogleg)):
-        dls_new = dogleg[x] * resolution / (md[x] - md[x-1])
-        dls.append(dls_new)
-
-    return dls
