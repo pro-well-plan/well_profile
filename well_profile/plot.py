@@ -34,7 +34,7 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
 
         well_no = 2
         for x in add_well:
-            new_well = pd.DataFrame(x.trayectory)
+            new_well = pd.DataFrame(x.trajectory)
             new_well["well"] = well_no
             wells.append(new_well)
             well_no += 1
