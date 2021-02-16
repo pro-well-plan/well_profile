@@ -14,12 +14,12 @@ class Well(object):
         self.trajectory = []
         for point in range(len(data['md'])):
             self.trajectory.append({'md': data['md'][point],
-                                    'tvd': data['tvd'][point],
+                                    'tvd': round(data['tvd'][point], 2),
                                     'inc': data['inclination'][point],
                                     'azi': data['azimuth'][point],
                                     'dl': data['dogleg'][point],
-                                    'north': data['north'][point],
-                                    'east': data['east'][point],
+                                    'north': round(data['north'][point], 2),
+                                    'east': round(data['east'][point], 2),
                                     'dls': data['dls'][point],
                                     'sectionType': data['sections'][point],
                                     'delta': data['delta'][point]})

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from well_profile import get, load
+from well_profile import get, load, two_points
 import pandas as pd
 
 
@@ -56,7 +56,7 @@ class TestCreate(TestCase):
     def test_load_df(self):
 
         well = load(load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/'
-                          r'trajectory1.xlsx').df())
+                         r'trajectory1.xlsx').df())
 
         run_assertions(self, well, 3790)
 
@@ -67,6 +67,33 @@ class TestCreate(TestCase):
 
         self.assertIsInstance(well, object, msg='main function is not returning an object')
         self.assertIsInstance(well_initial, pd.DataFrame, msg='method is not returning a dataframe')
+
+    def test_gen_two_points_case1(self):
+        # change in vertical = change in horizontal
+        point_1 = {'north': 0, 'east': 0, 'tvd': 300}
+        point_2 = {'north': 0, 'east': 500, 'tvd': 800}
+
+        well = two_points({'kickoff': point_1, 'target': point_2})
+
+        run_assertions(self, well, well.trajectory[-1]['md'])
+
+    def test_gen_two_points_case2(self):
+        # change in vertical < change in horizontal
+        point_1 = {'north': 0, 'east': 0, 'tvd': 300}
+        point_2 = {'north': 100, 'east': 800, 'tvd': 800}
+
+        well = two_points({'kickoff': point_1, 'target': point_2})
+
+        run_assertions(self, well, well.trajectory[-1]['md'])
+
+    def test_gen_two_points_case3(self):
+        # change in vertical > change in horizontal
+        point_1 = {'north': 0, 'east': 0, 'tvd': 300}
+        point_2 = {'north': 500, 'east': 0, 'tvd': 1900}
+
+        well = two_points({'kickoff': point_1, 'target': point_2})
+
+        run_assertions(self, well, well.trajectory[-1]['md'])
 
 
 def run_assertions(self, well, mdt):
