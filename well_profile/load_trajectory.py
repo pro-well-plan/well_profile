@@ -65,11 +65,11 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         processed = True
 
     if type(data[0]) is dict:
-        if processed:
+        if not processed:
             data = solve_key_similarities(data)
         md = [x['md'] for x in data]
-        inc = [x['inclination'] for x in data]
-        az = [x['azimuth'] for x in data]
+        inc = [x['inc'] for x in data]
+        az = [x['azi'] for x in data]
     else:       # if data is not a list of dicts, but a list of lists
         md, inc, az = data[:3]
 
