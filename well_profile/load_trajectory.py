@@ -5,23 +5,24 @@ from math import degrees
 from .well import Well, define_sections
 
 
-def load(data, units='metric', set_start=None, equidistant=True, points=None, change_azimuth=None,
-         dls_resolution=30):
+def load(data, set_start=None, equidistant=True, points=None, change_azimuth=None,
+         set_info=None):
     """
     Load an existing wellpath.
 
     Arguments:
         data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-        units: 'metric' or 'english'
         set_start: set initial point in m {'north': 0, 'east': 0}
         equidistant: True to get same md difference between points
         points: set number of points if equidistant is True
         change_azimuth: add specific degrees to azimuth values along the entire well
-        dls_resolution: base length to calculate dls
+        set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
 
     Returns:
         a wellpath object with 3D position
     """
+
+    info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
     initial_point = {'north': 0, 'east': 0}
 
@@ -29,6 +30,11 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
     data_initial = None
 
     processed = False
+
+    if set_info is not None:
+        for param in set_info:  # changing default values
+            if param in info:
+                info[param] = set_info[param]
 
     if set_start is not None:
         for x in set_start:  # changing default values
@@ -164,8 +170,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
     data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
             'north': [n + initial_point['north'] for n in north],
             'east': [e + initial_point['east'] for e in east],
-            'dlsResolution': dls_resolution,
-            'depthStep': depth_step, 'points': points, 'sections': sections, 'units': units}
+            'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
 
     well = Well(data)
 

@@ -7,9 +7,9 @@ class Well(object):
     def __init__(self, data):
         self.depth_step = data['depthStep']
         self.points = data['points']
-        data['dls'] = calc_dls(data['dogleg'], data['md'], resolution=data['dlsResolution'])
+        self.info = data['info']
+        data['dls'] = calc_dls(data['dogleg'], data['md'], resolution=self.info['dlsResolution'])
         data['delta'] = get_delta(data)
-        self.info = {'dlsResolution': data['dlsResolution'], 'units': data['units']}
         self.trajectory = []
         for point in range(len(data['md'])):
             self.trajectory.append({'md': data['md'][point],

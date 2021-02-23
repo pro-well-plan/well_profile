@@ -4,8 +4,8 @@ from math import degrees
 from .well import Well, define_sections
 
 
-def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, units='metric',
-        set_start=None, change_azimuth=None, dls_resolution=30):
+def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, set_start=None,
+        change_azimuth=None, set_info=None):
     """
     Generate a wellpath.
 
@@ -21,16 +21,22 @@ def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0,
         eod: end of drop, m or ft
         kop2: kick-off point 2, m or ft
         eob2: end of build 2, m or ft
-        units: 'metric' or 'english'
         set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
         change_azimuth: add specific degrees to azimuth values along the entire well
-        dls_resolution: base length to calculate dls
+        set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
 
     Returns:
         a wellpath object with 3D position
     """
 
+    info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
+
     initial_point = {'north': 0, 'east': 0, 'depth': 0}
+
+    if set_info is not None:
+        for param in set_info:  # changing default values
+            if param in info:
+                info[param] = set_info[param]
 
     if set_start is not None:
         for x in set_start:  # changing default values
@@ -84,8 +90,7 @@ def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0,
             'inclination': [round(i, 2) for i in inclination_new], 'azimuth': azimuth_new, 'dogleg': dogleg,
             'north': [x + initial_point['north'] for x in north_new],
             'east': [x + initial_point['east'] for x in east_new],
-            'dlsResolution': dls_resolution,
-            'depthStep': depth_step, 'points': points, 'sections': sections, 'units': units}
+            'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
 
     return Well(data)
 
