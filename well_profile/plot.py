@@ -20,7 +20,7 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
         3D Plot - plotly.graph_objects.Figure
     """
 
-    units = well.units
+    units = well.info['units']
 
     well1 = pd.DataFrame(well.trajectory)
     well1["well"] = 1
