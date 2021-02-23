@@ -9,7 +9,7 @@ class Well(object):
         self.points = data['points']
         data['dls'] = calc_dls(data['dogleg'], data['md'], resolution=data['dlsResolution'])
         data['delta'] = get_delta(data)
-        self.info = {'dls_resolution': data['dlsResolution'], 'units': data['units']}
+        self.info = {'dlsResolution': data['dlsResolution'], 'units': data['units']}
         self.trajectory = []
         for point in range(len(data['md'])):
             self.trajectory.append({'md': data['md'][point],
@@ -36,6 +36,12 @@ class Well(object):
         set specific location lat and lon in decimal degrees
         """
         self.info['location'] = {'lat': lat, 'lon': lon}
+
+    def add_reference(self, references):
+        self.info['rkb'] = references['rkb']
+        if 'waterDepth' in references:
+            self.info.update({'waterDepth': references['waterDepth'],
+                              'seabed': references['rkb'] + references['waterDepth']})
 
 
 def define_sections(tvd, inc):
