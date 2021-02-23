@@ -28,6 +28,8 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
     base_data = False
     data_initial = None
 
+    processed = False
+
     if set_start is not None:
         for x in set_start:  # changing default values
             if x in initial_point:
@@ -40,6 +42,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
+        processed = True
 
     if ".xlsx" in data:
         base_data = True
@@ -49,6 +52,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
+        processed = True
 
     if ".csv" in data:
         base_data = True
@@ -58,8 +62,11 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
+        processed = True
 
     if type(data[0]) is dict:
+        if processed:
+            data = solve_key_similarities(data)
         md = [x['md'] for x in data]
         inc = [x['inclination'] for x in data]
         az = [x['azimuth'] for x in data]
@@ -169,13 +176,14 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
 
 
 def solve_key_similarities(data):
-    md_similarities = ['MD', 'MD (ft)', 'MD (m)', 'measured depth', 'Measured Depth',
-                       'md (ft)', 'md (m)', 'MD(m)', 'MD(ft)', 'measured depth (ft)', 'Measured Depth (ft)',
+    md_similarities = ['MD', 'MD (ft)', 'MD (m)', 'md (ft)', 'md (m)', 'MD(m)', 'MD(ft)',
+                       'measured depth', 'Measured Depth',
+                       'measured depth (ft)', 'Measured Depth (ft)',
                        'measured depth (m)', 'Measured Depth (m)', 'measured depth(m)', 'Measured Depth(m)',
                        'measured depth(ft)', 'Measured Depth(ft)']
 
-    inc_similarities = ['Inclination', 'inc', 'Inc', 'Incl', 'incl', 'Inc (°)', 'inc (°)',
-                        'Inclination (°)', 'Incl (°)', 'incl (°)', 'Inclination(°)', 'Incl(°)',
+    inc_similarities = ['Inclination', 'inclination', 'Inc', 'Incl', 'incl', 'Inc (°)', 'inc (°)',
+                        'Inclination (°)', 'inclination (°)', 'Incl (°)', 'incl (°)', 'Inclination(°)', 'Incl(°)',
                         'incl(°)', 'Inc(°)', 'inc(°)', 'INC', 'INC(°)', 'INC (°)', 'INCL',
                         'INCL(°)', 'INCL (°)']
 
@@ -183,19 +191,21 @@ def solve_key_similarities(data):
                         'Az', 'Az(°)', 'Az (°)',
                         'AZ', 'AZ(°)', 'AZ (°)',
                         'Azi', 'Azi(°)', 'Azi (°)',
-                        'azi', 'azi(°)', 'azi (°)',
+                        'azi(°)', 'azi (°)',
                         'AZI', 'AZI(°)', 'AZI (°)',
-                        'Azimuth', 'Azimuth(°)', 'Azimuth (°)']
+                        'Azimuth', 'Azimuth(°)', 'Azimuth (°)',
+                        'azimuth', 'azimuth(°)', 'azimuth (°)']
 
-    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)']
+    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)',
+                        'tvd (m)', 'tvd (ft)', 'tvd(m)', 'tvd(ft)']
 
     north_similarities = ['NORTH', 'NORTH(m)', 'NORTH(ft)',
                           'NORTH (m)', 'NORTH (ft)',
                           'North', 'North(m)', 'North(ft)',
                           'North (m)', 'North (ft)',
                           'Northing(m)', 'Northing(ft)'
-                                         'Northing (m)', ' Northing(ft)'
-                                                         'N/S (m)', 'N/S (ft)',
+                          'Northing (m)', ' Northing(ft)'
+                          'N/S (m)', 'N/S (ft)',
                           'N/S(m)', 'N/S(ft)',
                           'Ns (m)', 'Ns (ft)',
                           'Ns(m)', 'Ns(ft)']
@@ -218,13 +228,18 @@ def solve_key_similarities(data):
                      north_similarities,
                      east_similarties]
 
-    correct_keys = ['md', 'tvd', 'inclination', 'azimuth', 'north', 'east']
+    correct_keys = ['md', 'tvd', 'inc', 'azi', 'north', 'east']
 
     true_key = 0
     for i in possible_keys:
         for x in i:
-            if x in data.columns:
-                data.rename(columns={x: correct_keys[true_key]}, inplace=True)
+            if isinstance(data, pd.DataFrame):
+                if x in data.columns:
+                    data.rename(columns={x: correct_keys[true_key]}, inplace=True)
+            else:
+                if x in data[0]:
+                    for point in data:
+                        point[correct_keys[true_key]] = point[x]
         true_key += 1
 
     return data
