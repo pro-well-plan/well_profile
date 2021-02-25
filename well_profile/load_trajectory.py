@@ -5,28 +5,36 @@ from math import degrees
 from .well import Well, define_sections
 
 
-def load(data, units='metric', set_start=None, equidistant=True, points=None, change_azimuth=None,
-         dls_resolution=30):
+def load(data, set_start=None, equidistant=True, points=None, change_azimuth=None,
+         set_info=None):
     """
     Load an existing wellpath.
 
     Arguments:
         data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-        units: 'metric' or 'english'
         set_start: set initial point in m {'north': 0, 'east': 0}
         equidistant: True to get same md difference between points
         points: set number of points if equidistant is True
         change_azimuth: add specific degrees to azimuth values along the entire well
-        dls_resolution: base length to calculate dls
+        set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
 
     Returns:
         a wellpath object with 3D position
     """
 
+    info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
+
     initial_point = {'north': 0, 'east': 0}
 
     base_data = False
     data_initial = None
+
+    processed = False
+
+    if set_info is not None:
+        for param in set_info:  # changing default values
+            if param in info:
+                info[param] = set_info[param]
 
     if set_start is not None:
         for x in set_start:  # changing default values
@@ -40,6 +48,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
+        processed = True
 
     if ".xlsx" in data:
         base_data = True
@@ -49,6 +58,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
+        processed = True
 
     if ".csv" in data:
         base_data = True
@@ -58,11 +68,14 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
         data.dropna(inplace=True)
         data = solve_key_similarities(data)
         data = data.to_dict('records')
+        processed = True
 
     if type(data[0]) is dict:
+        if not processed:
+            data = solve_key_similarities(data)
         md = [x['md'] for x in data]
-        inc = [x['inclination'] for x in data]
-        az = [x['azimuth'] for x in data]
+        inc = [x['inc'] for x in data]
+        az = [x['azi'] for x in data]
     else:       # if data is not a list of dicts, but a list of lists
         md, inc, az = data[:3]
 
@@ -157,8 +170,7 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
     data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
             'north': [n + initial_point['north'] for n in north],
             'east': [e + initial_point['east'] for e in east],
-            'dlsResolution': dls_resolution,
-            'depthStep': depth_step, 'points': points, 'sections': sections, 'units': units}
+            'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
 
     well = Well(data)
 
@@ -169,13 +181,14 @@ def load(data, units='metric', set_start=None, equidistant=True, points=None, ch
 
 
 def solve_key_similarities(data):
-    md_similarities = ['MD', 'MD (ft)', 'MD (m)', 'measured depth', 'Measured Depth',
-                       'md (ft)', 'md (m)', 'MD(m)', 'MD(ft)', 'measured depth (ft)', 'Measured Depth (ft)',
+    md_similarities = ['MD', 'MD (ft)', 'MD (m)', 'md (ft)', 'md (m)', 'MD(m)', 'MD(ft)',
+                       'measured depth', 'Measured Depth',
+                       'measured depth (ft)', 'Measured Depth (ft)',
                        'measured depth (m)', 'Measured Depth (m)', 'measured depth(m)', 'Measured Depth(m)',
                        'measured depth(ft)', 'Measured Depth(ft)']
 
-    inc_similarities = ['Inclination', 'inc', 'Inc', 'Incl', 'incl', 'Inc (°)', 'inc (°)',
-                        'Inclination (°)', 'Incl (°)', 'incl (°)', 'Inclination(°)', 'Incl(°)',
+    inc_similarities = ['Inclination', 'inclination', 'Inc', 'Incl', 'incl', 'Inc (°)', 'inc (°)',
+                        'Inclination (°)', 'inclination (°)', 'Incl (°)', 'incl (°)', 'Inclination(°)', 'Incl(°)',
                         'incl(°)', 'Inc(°)', 'inc(°)', 'INC', 'INC(°)', 'INC (°)', 'INCL',
                         'INCL(°)', 'INCL (°)']
 
@@ -183,19 +196,21 @@ def solve_key_similarities(data):
                         'Az', 'Az(°)', 'Az (°)',
                         'AZ', 'AZ(°)', 'AZ (°)',
                         'Azi', 'Azi(°)', 'Azi (°)',
-                        'azi', 'azi(°)', 'azi (°)',
+                        'azi(°)', 'azi (°)',
                         'AZI', 'AZI(°)', 'AZI (°)',
-                        'Azimuth', 'Azimuth(°)', 'Azimuth (°)']
+                        'Azimuth', 'Azimuth(°)', 'Azimuth (°)',
+                        'azimuth', 'azimuth(°)', 'azimuth (°)']
 
-    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)']
+    tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)',
+                        'tvd (m)', 'tvd (ft)', 'tvd(m)', 'tvd(ft)']
 
     north_similarities = ['NORTH', 'NORTH(m)', 'NORTH(ft)',
                           'NORTH (m)', 'NORTH (ft)',
                           'North', 'North(m)', 'North(ft)',
                           'North (m)', 'North (ft)',
                           'Northing(m)', 'Northing(ft)'
-                                         'Northing (m)', ' Northing(ft)'
-                                                         'N/S (m)', 'N/S (ft)',
+                          'Northing (m)', ' Northing(ft)'
+                          'N/S (m)', 'N/S (ft)',
                           'N/S(m)', 'N/S(ft)',
                           'Ns (m)', 'Ns (ft)',
                           'Ns(m)', 'Ns(ft)']
@@ -218,13 +233,18 @@ def solve_key_similarities(data):
                      north_similarities,
                      east_similarties]
 
-    correct_keys = ['md', 'tvd', 'inclination', 'azimuth', 'north', 'east']
+    correct_keys = ['md', 'tvd', 'inc', 'azi', 'north', 'east']
 
     true_key = 0
     for i in possible_keys:
         for x in i:
-            if x in data.columns:
-                data.rename(columns={x: correct_keys[true_key]}, inplace=True)
+            if isinstance(data, pd.DataFrame):
+                if x in data.columns:
+                    data.rename(columns={x: correct_keys[true_key]}, inplace=True)
+            else:
+                if x in data[0]:
+                    for point in data:
+                        point[correct_keys[true_key]] = point[x]
         true_key += 1
 
     return data
