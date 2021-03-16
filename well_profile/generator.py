@@ -40,15 +40,12 @@ def two_points(points):
     # Define azimuth
     azimuth = 0
     #if delta['north'] != 0 and delta['east'] != 0:
-    beta = np.degrees(np.arctan(delta['north'] / delta['east']))
-    print(delta)
-    print(beta)
+    beta = degrees(atan(delta['north'] / delta['east']))
+
     if delta['east']>=0:
         azimuth = 90-beta
     else:
         azimuth = 270-beta
-
-    print(azimuth)
 
     # 3 cases comparing vertical and horizontal displacement
     steps = 20
