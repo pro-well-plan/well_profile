@@ -1,5 +1,4 @@
 from math import atan, degrees, radians, asin
-import numpy as np 
 from numpy import linspace
 import pandas as pd
 from .load_trajectory import load
