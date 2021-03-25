@@ -3,7 +3,7 @@
 [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/pro-well-plan/well_profile/blob/master/LICENSE.md)
 [![PyPI version](https://badge.fury.io/py/well-profile.svg)](https://badge.fury.io/py/well-profile)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://pwp-opensource.herokuapp.com/)
+[![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://share.streamlit.io/jcamiloangarita/opensource_apps/app.py)
 [![Documentation Status](https://readthedocs.org/projects/well_profile/badge/?version=latest)](http://well_profile.readthedocs.io/?badge=latest)
 [![Build Status](https://www.travis-ci.org/pro-well-plan/well_profile.svg?branch=master)](https://www.travis-ci.org/pro-well-plan/well_profile)
 [![Downloads](https://pepy.tech/badge/well-profile)](https://pepy.tech/project/well-profile)
