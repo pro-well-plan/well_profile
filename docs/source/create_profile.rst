@@ -114,3 +114,17 @@ Horizontal double curve well
 
 .. |create_h2| image:: /figures/create_h2.png
                     :scale: 30%
+
+
+Using two points
+----------------
+
+This function allows to generate a wellbore trajectory by seeting kick-off point (KOP) and target.
+
+.. autofunction:: well_profile.two_points
+
+.. code-block:: python
+
+    >>> import well_profile as wp
+    >>> well = wp.two_points({'kickoff': {'north': 0, 'east': 0, 'tvd': 100},
+    >>>                       'target': {'north': 500, 'east': 800, 'tvd': 800}})
