@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [v0.5.1] - 2021-02-15
+## [v0.5.1] - 2021-02-25
 ### Added
 - Function two_points to generate a trajectory by setting KOP and Target
 - Method to add wellbore location
