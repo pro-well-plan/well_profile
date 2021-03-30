@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [v0.5.1] - 2021-02-15
+### Added
+- Function two_points to generate a trajectory by setting KOP and Target
+- Method to add wellbore location
+- Including plot style
+- Well.info
+### Changed
+- Get trajectory as list of dicts
+- Set equidistant as default
+- ### Fixed
+- Minor issues
+
 ## [v0.4.1] - 2021-01-15
 ### Added
 - Allows input data as list of lists
