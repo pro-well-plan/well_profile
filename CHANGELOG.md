@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Get trajectory as list of dicts
 - Set equidistant as default
-- ### Fixed
+### Fixed
 - Minor issues
 
 ## [v0.4.1] - 2021-01-15
