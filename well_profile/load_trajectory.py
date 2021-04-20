@@ -181,49 +181,39 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
 
 
 def solve_key_similarities(data):
-    md_similarities = ['MD', 'MD (ft)', 'MD (m)', 'md (ft)', 'md (m)', 'MD(m)', 'MD(ft)',
-                       'measured depth', 'Measured Depth',
-                       'measured depth (ft)', 'Measured Depth (ft)',
-                       'measured depth (m)', 'Measured Depth (m)', 'measured depth(m)', 'Measured Depth(m)',
-                       'measured depth(ft)', 'Measured Depth(ft)']
+    md_similarities = ['MD', 'md(ft)', 'md(m)', 'MD(m)', 'MD(ft)',
+                       'measureddepth', 'MeasuredDepth',
+                       'measureddepth(m)', 'MeasuredDepth(m)',
+                       'measureddepth(ft)', 'MeasuredDepth(ft)']
 
-    inc_similarities = ['Inclination', 'inclination', 'Inc', 'Incl', 'incl', 'Inc (°)', 'inc (°)',
-                        'Inclination (°)', 'inclination (°)', 'Incl (°)', 'incl (°)', 'Inclination(°)', 'Incl(°)',
-                        'incl(°)', 'Inc(°)', 'inc(°)', 'INC', 'INC(°)', 'INC (°)', 'INCL',
-                        'INCL(°)', 'INCL (°)']
+    inc_similarities = ['Inclination', 'inclination', 'Inc', 'Incl', 'incl',
+                        'inclination(°)', 'Inclination(°)', 'Incl(°)',
+                        'incl(°)', 'Inc(°)', 'inc(°)', 'INC', 'INC(°)', 'INCL',
+                        'INCL(°)', 'Inc(deg)', 'inc(deg)']
 
-    azi_similarities = ['az', 'az(°)', 'az (°)',
-                        'Az', 'Az(°)', 'Az (°)',
-                        'AZ', 'AZ(°)', 'AZ (°)',
-                        'Azi', 'Azi(°)', 'Azi (°)',
-                        'azi(°)', 'azi (°)',
-                        'AZI', 'AZI(°)', 'AZI (°)',
-                        'Azimuth', 'Azimuth(°)', 'Azimuth (°)',
-                        'azimuth', 'azimuth(°)', 'azimuth (°)']
+    azi_similarities = ['az', 'az(°)',
+                        'Az', 'Az(°)',
+                        'AZ', 'AZ(°)',
+                        'Azi', 'Azi(°)',
+                        'azi(°)',
+                        'AZI', 'AZI(°)',
+                        'Azimuth', 'Azimuth(°)',
+                        'azimuth', 'azimuth(°)',
+                        'Azi(deg)', 'azi(deg)']
 
     tvd_similarities = ['TVD', 'TVD (m)', 'TVD (ft)', 'TVD(m)', 'TVD(ft)',
                         'tvd (m)', 'tvd (ft)', 'tvd(m)', 'tvd(ft)']
 
     north_similarities = ['NORTH', 'NORTH(m)', 'NORTH(ft)',
-                          'NORTH (m)', 'NORTH (ft)',
                           'North', 'North(m)', 'North(ft)',
-                          'North (m)', 'North (ft)',
                           'Northing(m)', 'Northing(ft)'
-                          'Northing (m)', ' Northing(ft)'
-                          'N/S (m)', 'N/S (ft)',
                           'N/S(m)', 'N/S(ft)',
-                          'Ns (m)', 'Ns (ft)',
                           'Ns(m)', 'Ns(ft)']
 
-    east_similarties = ['EAST', 'EAST(m)', 'EAST(ft)',
-                        'EAST (m)', 'EAST (ft)',
+    east_similarities = ['EAST', 'EAST(m)', 'EAST(ft)',
                         'East', 'East(m)', 'East(ft)',
-                        'East (m)', 'East (ft)',
                         'Easting(m)', 'Easting(ft)'
-                        'Easting (m)', ' Easting(ft)'
-                        'E/W (m)', 'E/W (ft)',
                         'E/W(m)', 'E/W(ft)',
-                        'Ew (m)', 'Ew (ft)',
                         'Ew(m)', 'Ew(ft)']
 
     possible_keys = [md_similarities,
@@ -231,7 +221,7 @@ def solve_key_similarities(data):
                      inc_similarities,
                      azi_similarities,
                      north_similarities,
-                     east_similarties]
+                     east_similarities]
 
     correct_keys = ['md', 'tvd', 'inc', 'azi', 'north', 'east']
 
@@ -239,10 +229,11 @@ def solve_key_similarities(data):
     for i in possible_keys:
         for x in i:
             if isinstance(data, pd.DataFrame):
+                data.columns = data.columns.str.replace(' ', '')
                 if x in data.columns:
                     data.rename(columns={x: correct_keys[true_key]}, inplace=True)
             else:
-                if x in data[0]:
+                if x.replace(' ', '') in data[0]:
                     for point in data:
                         point[correct_keys[true_key]] = point[x]
         true_key += 1
