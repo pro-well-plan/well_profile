@@ -74,6 +74,8 @@ class TestCreate(TestCase):
         point_2 = {'north': 0, 'east': 500, 'tvd': 800}
 
         well = two_points({'kickoff': point_1, 'target': point_2})
+        self.assertEqual(well.trajectory[-1]['north'], point_2['north'], msg='Getting wrong north at TD')
+        self.assertEqual(well.trajectory[-1]['east'], point_2['east'], msg='Getting wrong east at TD')
 
         run_assertions(self, well, well.trajectory[-1]['md'])
 
@@ -83,6 +85,8 @@ class TestCreate(TestCase):
         point_2 = {'north': 100, 'east': 800, 'tvd': 800}
 
         well = two_points({'kickoff': point_1, 'target': point_2})
+        self.assertEqual(well.trajectory[-1]['north'], point_2['north'], msg='Getting wrong north at TD')
+        self.assertEqual(well.trajectory[-1]['east'], point_2['east'], msg='Getting wrong east at TD')
 
         run_assertions(self, well, well.trajectory[-1]['md'])
 
@@ -92,6 +96,8 @@ class TestCreate(TestCase):
         point_2 = {'north': 500, 'east': 0, 'tvd': 1900}
 
         well = two_points({'kickoff': point_1, 'target': point_2})
+        self.assertEqual(well.trajectory[-1]['north'], point_2['north'], msg='Getting wrong north at TD')
+        self.assertEqual(well.trajectory[-1]['east'], point_2['east'], msg='Getting wrong east at TD')
 
         run_assertions(self, well, well.trajectory[-1]['md'])
 
