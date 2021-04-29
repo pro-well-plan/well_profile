@@ -37,7 +37,12 @@ def two_points(points):
     # Define azimuth
     azimuth = 0
     if delta['north'] != 0 and delta['east'] != 0:
-        azimuth = degrees(atan(abs(delta['east']) / abs(delta['north'])))
+        beta = degrees(atan(delta['north'] / delta['east']))
+        if delta['east'] > 0:
+            azimuth = 90 - beta
+        else:
+            azimuth = 270 - beta
+
     else:
         if delta['north'] == 0:
             if delta['east'] > 0:
@@ -63,7 +68,7 @@ def two_points(points):
         for md, inc in zip(new_md, new_inc):
             trajectory.append({'md': md, 'inc': inc, 'azi': azimuth})
 
-        well = load(pd.DataFrame(trajectory), equidistant=False, set_start={'north': 0, 'east': 0})
+        well = load(pd.DataFrame(trajectory), equidistant=False, set_start=point_1)
 
         return well
 
@@ -82,7 +87,7 @@ def two_points(points):
         trajectory.append({'md': trajectory[-1]['md']+(delta['horizontal']-delta['vertical']), 'inc': 90,
                            'azi': trajectory[-1]['azi']})
 
-        well = load(pd.DataFrame(trajectory), equidistant=False, set_start={'north': 0, 'east': 0})
+        well = load(pd.DataFrame(trajectory), equidistant=False, set_start=point_1)
 
         return well
 
@@ -96,6 +101,6 @@ def two_points(points):
         for md, inc in zip(new_md, new_inc):
             trajectory.append({'md': md, 'inc': inc, 'azi': azimuth})
 
-        well = load(pd.DataFrame(trajectory), equidistant=False, set_start={'north': 0, 'east': 0})
+        well = load(pd.DataFrame(trajectory), equidistant=False, set_start=point_1)
 
         return well
