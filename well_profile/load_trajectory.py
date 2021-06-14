@@ -5,8 +5,7 @@ from math import degrees
 from .well import Well, define_sections
 
 
-def load(data, set_start=None, equidistant=True, points=None, change_azimuth=None,
-         set_info=None):
+def load(data, set_start=None, equidistant=True, points=None, change_azimuth=None, set_info=None, calc_loc=False):
     """
     Load an existing wellpath.
 
@@ -17,6 +16,7 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
         points: set number of points if equidistant is True
         change_azimuth: add specific degrees to azimuth values along the entire well
         set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
+        calc_loc: calculate north, east and tvd, even if this data is available
 
     Returns:
         a wellpath object with 3D position
@@ -95,9 +95,21 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
         md_new = list(linspace(min(md), max(md), num=points))
         inc_new = []
         az_new = []
+        _initial_azi = 0
+        _kickoff = 0
+        _eob = 0
+        for idx, point in enumerate(md):
+            if inc[idx] != 0:
+                _initial_azi = az[idx]
+                _kickoff = md[idx - 1]
+                _eob = point
+                break
         for i in md_new:
             inc_new.append(interp(i, md, inc))
-            az_new.append(interp(i, md, az))
+            if _kickoff <= i <= _eob:
+                az_new.append(_initial_azi)
+            else:
+                az_new.append(interp(i, md, az))
         depth_step = md_new[1] - md_new[0]
     else:
         md_new = md
@@ -110,7 +122,7 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
     for x in range(1, len(md_new)):
         dogleg.append(calc_dogleg(inc_new[x-1], inc_new[x], az_new[x-1], az_new[x]))
 
-    if 'north' and 'east' in data[0]:
+    if 'north' and 'east' in data[0] and not calc_loc:
         north = [x['north'] for x in data]
         east = [x['east'] for x in data]
 
@@ -119,8 +131,8 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
                 north[x] = float(y.split(",", 1)[0])
                 east[x] = float(east[x].split(",", 1)[0])
 
-        north_new = [0]
-        east_new = [0]
+        north_new = [data[0]['north']]
+        east_new = [data[0]['east']]
         for i in md_new[1:]:
             north_new.append(interp(i, md, north))
             east_new.append(interp(i, md, east))
@@ -211,10 +223,10 @@ def solve_key_similarities(data):
                           'Ns(m)', 'Ns(ft)']
 
     east_similarities = ['EAST', 'EAST(m)', 'EAST(ft)',
-                        'East', 'East(m)', 'East(ft)',
-                        'Easting(m)', 'Easting(ft)'
-                        'E/W(m)', 'E/W(ft)',
-                        'Ew(m)', 'Ew(ft)']
+                         'East', 'East(m)', 'East(ft)',
+                         'Easting(m)', 'Easting(ft)'
+                         'E/W(m)', 'E/W(ft)',
+                         'Ew(m)', 'Ew(ft)']
 
     possible_keys = [md_similarities,
                      tvd_similarities,
