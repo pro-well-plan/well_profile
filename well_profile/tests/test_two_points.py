@@ -1,5 +1,5 @@
 from unittest import TestCase
-from well_profile import two_points
+from well_profile import two_points, load
 
 
 class TestTwoPoints(TestCase):
@@ -33,6 +33,21 @@ class TestTwoPoints(TestCase):
 
         two_points_assertions(self, well, point_1, point_2)
         run_assertions(self, well, well.trajectory[-1]['md'])
+
+    def test_consistency(self):
+        point_1 = {'north': -35, 'east': 21, 'tvd': 300}
+        point_2 = {'north': -100, 'east': 800, 'tvd': 800}
+
+        well = two_points({'kickoff': point_1, 'target': point_2})
+        well2 = load(well.trajectory, equidistant=False)
+        self.assertEqual(well.trajectory[-1]['md'], well2.trajectory[-1]['md'],
+                         msg='last point md is different')
+        self.assertEqual(well.trajectory[-1]['inc'], well2.trajectory[-1]['inc'],
+                         msg='last point inc is different')
+        self.assertEqual(well.trajectory[-1]['azi'], well2.trajectory[-1]['azi'],
+                         msg='last point azi is different')
+        self.assertEqual(max([p['dls'] for p in well.trajectory]), max([p['dls'] for p in well2.trajectory]),
+                         msg='max dls is different')
 
 
 def run_assertions(obj, well, mdt):

@@ -2,7 +2,7 @@ from unittest import TestCase
 from well_profile import load
 
 
-class TestCreate(TestCase):
+class TestStyle(TestCase):
 
     def test_dark_mode(self):
         well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
