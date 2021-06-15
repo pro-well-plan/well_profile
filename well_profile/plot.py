@@ -52,16 +52,9 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
             result.replace({'well': {well_no: x}}, inplace=True)
             well_no += 1
 
-    set_style = {'darkMode': False, 'color': None, 'size': 2}
-    if style is not None:
-        for key in style.keys():
-            set_style[key] = style[key]
+    style = define_style(style)
 
-    template = None
-    if set_style['darkMode']:
-        template = 'plotly_dark'
-
-    if len(result.well.unique()) > 1 or set_style['color'] is None:
+    if len(result.well.unique()) > 1 or style['color'] is None:
         color = 'well'
         fig = px.line_3d(result, x="east", y="north", z="tvd", color=color)
 
@@ -72,8 +65,8 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
             z=result['tvd'],
             mode='markers',
             marker=dict(
-                size=set_style['size'],
-                color=result[set_style['color']],  # set color to an array/list of desired values
+                size=style['size'],
+                color=result[style['color']],  # set color to an array/list of desired values
                 showscale=True,
                 opacity=0.8
             ),
@@ -93,6 +86,61 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
             zaxis_title='TVD, ft',
             aspectmode='manual'))
     fig.update_scenes(zaxis_autorange="reversed")
-    fig.layout.template = template
+    fig.layout.template = style['darkMode']
 
     return fig
+
+
+def plot_top_view(well, add_well=None, names=None, style=None):
+    wells = [well]
+
+    if add_well is not None:
+        if type(add_well) is not list:
+            add_well = [add_well]
+        wells += add_well
+
+    if names:
+        if type(names) is not list:
+            names = [names]
+    else:
+        names = []
+        well_no = 1
+        for idx, well in enumerate(wells):
+            names.append('well ' + str(well_no))
+            well_no += 1
+
+    fig = go.Figure()
+
+    for idx, w in enumerate(wells):
+        fig.add_trace(go.Scatter(
+            x=[point['east'] for point in w.trajectory],
+            y=[point['north'] for point in w.trajectory],
+            hovertemplate='<b>North</b>: %{y:.2f}<br>'+
+            '<b>East</b>: %{x}<br>',
+            showlegend=False, name=names[idx]))
+
+    if well.info['units'] == 'metric':
+        fig.update_layout(xaxis_title='East, m',
+                          yaxis_title='North, m')
+    else:
+        fig.update_layout(xaxis_title='East, ft',
+                          yaxis_title='North, ft')
+
+    style = define_style(style)
+    fig.layout.template = style['darkMode']
+
+    return fig
+
+
+def define_style(style):
+    set_style = {'darkMode': False, 'color': None, 'size': 2}
+    if style is not None:
+        for key in style.keys():
+            set_style[key] = style[key]
+
+    if set_style['darkMode']:
+        set_style['darkMode'] = 'plotly_dark'
+    else:
+        set_style['darkMode'] = None
+
+    return set_style
