@@ -154,7 +154,7 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
                                   az_new[x - 1], az_new[x],
                                   dogleg[x]))
 
-    if type(data[0]) is dict and 'tvd' in data[0]:
+    if type(data[0]) is dict and 'tvd' in data[0] and not calc_loc:
         tvd = [x['tvd'] for x in data]
         for x, y in enumerate(tvd):     # change values to numbers if are strings
             if type(y) == str:
