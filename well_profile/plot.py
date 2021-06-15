@@ -89,6 +89,7 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
     fig.layout.template = style['darkMode']
     fig.update_traces(hovertext='<b>North</b>: %{y:.2f}<br>' + '<b>East</b>: %{x}<br>' + '<b>TVD</b>: %{z}',
                       selector=dict(type='scatter3d'))
+    fig.update_layout(title='Wellbore Trajectory - 3D View')
 
     return fig
 
@@ -128,6 +129,7 @@ def plot_top_view(well, add_well=None, names=None, style=None):
         fig.update_layout(xaxis_title='East, ft',
                           yaxis_title='North, ft')
 
+    fig.update_layout(title='Wellbore Trajectory - Top View')
     style = define_style(style)
     fig.layout.template = style['darkMode']
 

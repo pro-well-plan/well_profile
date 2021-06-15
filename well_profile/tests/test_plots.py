@@ -21,11 +21,3 @@ class TestPlots(TestCase):
         well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
         fig = well.plot(plot_type='top', style={'darkMode': True})
         self.assertEqual(fig.layout.template.layout.mapbox.style, 'dark')
-
-
-def run_assertions(self, well, mdt):
-    traj = well.trajectory
-    self.assertIsInstance(well.points, int, msg='points is not an integer')
-    self.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
-    self.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
-    self.assertEqual(well.points, len(traj), msg='Number of points is not correct')
