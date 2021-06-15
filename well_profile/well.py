@@ -1,5 +1,5 @@
 from .equations import *
-from .plot import plot_wellpath
+from .plot import plot_wellpath, plot_top_view
 import pandas as pd
 
 
@@ -23,9 +23,15 @@ class Well(object):
                                     'sectionType': data['sections'][point],
                                     'delta': data['delta'][point]})
 
-    def plot(self, add_well=None, names=None, style=None):
-        fig = plot_wellpath(self, add_well, names, style)
-        return fig
+    def plot(self, plot_type='3d', add_well=None, names=None, style=None):
+        if plot_type == '3d':
+            fig = plot_wellpath(self, add_well, names, style)
+            return fig
+        elif plot_type == 'top':
+            fig = plot_top_view(self, add_well, names, style)
+            return fig
+        else:
+            raise TypeError('This plot type is not recognised')
 
     def df(self):
         dataframe = pd.DataFrame(self.trajectory)
