@@ -54,7 +54,7 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
 
     style = define_style(style)
 
-    if len(result.well.unique()) > 1 or style['color'] is None:
+    if style['color'] is None:
         color = 'well'
         fig = px.line_3d(result, x="east", y="north", z="tvd", color=color)
 
