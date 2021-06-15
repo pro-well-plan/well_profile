@@ -59,19 +59,20 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
         fig = px.line_3d(result, x="east", y="north", z="tvd", color=color)
 
     else:
-        fig = go.Figure(data=[go.Scatter3d(
-            x=result['east'],
-            y=result['north'],
-            z=result['tvd'],
-            mode='markers',
-            marker=dict(
-                size=style['size'],
-                color=result[style['color']],  # set color to an array/list of desired values
-                showscale=True,
-                opacity=0.8
-            ),
-            legendgroup=True,
-        )])
+        fig = go.Figure(
+            data=[go.Scatter3d(x=result['east'],
+                               y=result['north'],
+                               z=result['tvd'],
+                               mode='markers',
+                               marker=dict(
+                                    size=style['size'],
+                                    color=result[style['color']],  # set color to an array/list of desired values
+                                    showscale=True,
+                                    opacity=0.8),
+                               legendgroup=True,
+                               hovertemplate='%{text}<extra></extra><br>' + '<b>North</b>: %{y:.2f}<br>' +
+                                             '<b>East</b>: %{x}<br>' + '<b>TVD</b>: %{z}<br>',
+                               text=result['well'])])
 
     if units == 'metric':
         fig.update_layout(scene=dict(
@@ -87,8 +88,6 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
             aspectmode='manual'))
     fig.update_scenes(zaxis_autorange="reversed")
     fig.layout.template = style['darkMode']
-    fig.update_traces(hovertext='<b>North</b>: %{y:.2f}<br>' + '<b>East</b>: %{x}<br>' + '<b>TVD</b>: %{z}',
-                      selector=dict(type='scatter3d'))
     fig.update_layout(title='Wellbore Trajectory - 3D View')
 
     return fig
@@ -118,8 +117,7 @@ def plot_top_view(well, add_well=None, names=None, style=None):
         fig.add_trace(go.Scatter(
             x=[point['east'] for point in w.trajectory],
             y=[point['north'] for point in w.trajectory],
-            hovertemplate='<b>North</b>: %{y:.2f}<br>'+
-            '<b>East</b>: %{x}<br>',
+            hovertemplate='<b>North</b>: %{y:.2f}<br>' + '<b>East</b>: %{x}<br>',
             showlegend=False, name=names[idx]))
 
     if well.info['units'] == 'metric':
