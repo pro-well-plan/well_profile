@@ -87,6 +87,8 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
             aspectmode='manual'))
     fig.update_scenes(zaxis_autorange="reversed")
     fig.layout.template = style['darkMode']
+    fig.update_traces(hovertext='<b>North</b>: %{y:.2f}<br>' + '<b>East</b>: %{x}<br>' + '<b>TVD</b>: %{z}',
+                      selector=dict(type='scatter3d'))
 
     return fig
 
