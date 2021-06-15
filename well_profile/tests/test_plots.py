@@ -21,3 +21,7 @@ class TestPlots(TestCase):
         well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
         fig = well.plot(plot_type='top', style={'darkMode': True})
         self.assertEqual(fig.layout.template.layout.mapbox.style, 'dark')
+
+    def test_vs_view(self):
+        well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
+        well.plot(plot_type='vs', x_axis='md', y_axis='tvd')
