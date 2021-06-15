@@ -3,11 +3,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-def plot_wellpath(well, add_well=None, names=None, style=None):
+def plot_wellpath(well, **kwargs):
     """
     Plot a 3D Wellpath.
 
-    Arguments:
+    Keyword Arguments:
         well: a well object with 3D position,
         add_well: include a new well or list of wells
         names: set name or list of names for wells included in the plot
@@ -20,20 +20,24 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
         3D Plot - plotly.graph_objects.Figure
     """
 
+    data = {'add_well': None, 'names': None, 'style': None}
+    for key, value in kwargs.items():
+        data[key] = value
+
     units = well.info['units']
 
     well1 = pd.DataFrame(well.trajectory)
     well1["well"] = 1
     result = well1
 
-    if add_well is not None:
+    if data['add_well'] is not None:
         wells = []
 
-        if type(add_well) is not list:
-            add_well = [add_well]
+        if type(data['add_well']) is not list:
+            data['add_well'] = [data['add_well']]
 
         well_no = 2
-        for x in add_well:
+        for x in data['add_well']:
             new_well = pd.DataFrame(x.trajectory)
             new_well["well"] = well_no
             wells.append(new_well)
@@ -42,17 +46,17 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
         all_wells = well1.append(wells)
         result = all_wells
 
-    if names is not None:
+    if data['names'] is not None:
 
-        if type(names) is not list:
-            names = [names]
+        if type(data['names']) is not list:
+            data['names'] = [data['names']]
 
         well_no = 1
-        for x in names:
+        for x in data['names']:
             result.replace({'well': {well_no: x}}, inplace=True)
             well_no += 1
 
-    style = define_style(style)
+    style = define_style(data['style'])
 
     if style['color'] is None:
         color = 'well'
@@ -93,22 +97,26 @@ def plot_wellpath(well, add_well=None, names=None, style=None):
     return fig
 
 
-def plot_top_view(well, add_well=None, names=None, style=None):
+def plot_top_view(well, **kwargs):
+    data = {'add_well': None, 'names': None, 'style': None}
+    for key, value in kwargs.items():
+        data[key] = value
+
     wells = [well]
 
-    if add_well is not None:
-        if type(add_well) is not list:
-            add_well = [add_well]
-        wells += add_well
+    if data['add_well'] is not None:
+        if type(data['add_well']) is not list:
+            data['add_well'] = [data['add_well']]
+        wells += data['add_well']
 
-    if names:
-        if type(names) is not list:
-            names = [names]
+    if data['names']:
+        if type(data['names']) is not list:
+            data['names'] = [data['names']]
     else:
-        names = []
+        data['names'] = []
         well_no = 1
         for idx, well in enumerate(wells):
-            names.append('well ' + str(well_no))
+            data['names'].append('well ' + str(well_no))
             well_no += 1
 
     fig = go.Figure()
@@ -118,7 +126,7 @@ def plot_top_view(well, add_well=None, names=None, style=None):
             x=[point['east'] for point in w.trajectory],
             y=[point['north'] for point in w.trajectory],
             hovertemplate='<b>North</b>: %{y:.2f}<br>' + '<b>East</b>: %{x}<br>',
-            showlegend=False, name=names[idx]))
+            showlegend=False, name=data['names'][idx]))
 
     if well.info['units'] == 'metric':
         fig.update_layout(xaxis_title='East, m',
@@ -127,8 +135,8 @@ def plot_top_view(well, add_well=None, names=None, style=None):
         fig.update_layout(xaxis_title='East, ft',
                           yaxis_title='North, ft')
 
-    fig.update_layout(title='Wellbore Trajectory - Top View')
-    style = define_style(style)
+    fig.update_layout(title='Wellbore Trajectory - Top View', hovermode='closest')
+    style = define_style(data['style'])
     fig.layout.template = style['darkMode']
 
     return fig
@@ -146,3 +154,64 @@ def define_style(style):
         set_style['darkMode'] = None
 
     return set_style
+
+
+def plot_vs(well, **kwargs):
+    data = {'y_axis': 'md', 'x_axis': 'inc', 'add_well': None, 'names': None, 'style': None}
+    for key, value in kwargs.items():
+        data[key] = value
+
+    possible_props = ['md', 'tvd', 'inc', 'azi', 'dl', 'dls']
+    for prop in [data['x_axis'], data['y_axis']]:
+        if prop not in possible_props:
+            raise ValueError('The axis "{}" is not recognised'.format(prop))
+
+    wells = [well]
+
+    if data['add_well'] is not None:
+        if type(data['add_well']) is not list:
+            data['add_well'] = [data['add_well']]
+        wells += data['add_well']
+
+    if data['names']:
+        if type(data['names']) is not list:
+            data['names'] = [data['names']]
+    else:
+        data['names'] = []
+        well_no = 1
+        for idx, well in enumerate(wells):
+            data['names'].append('well ' + str(well_no))
+            well_no += 1
+
+    fig = go.Figure()
+
+    for idx, w in enumerate(wells):
+        fig.add_trace(go.Scatter(
+            x=[point[data['x_axis']] for point in w.trajectory],
+            y=[point[data['y_axis']] for point in w.trajectory],
+            hovertemplate='<b>y</b>: %{y:.2f}<br>' + '<b>x</b>: %{x:.2f}<br>',
+            showlegend=False, name=data['names'][idx]))
+
+    units = ['m', '°']
+    for key, axis, in {'0': data['x_axis'], '1': data['y_axis']}.items():
+        if axis in ['md', 'tvd']:
+            if well.info['units'] == 'metric':
+                units[int(key)] = 'm'
+            else:
+                units[int(key)] = 'ft'
+        elif axis in ['inc', 'azi', 'dl']:
+            units[int(key)] = '°'
+        elif axis == 'dls':
+            if well.info['units'] == 'metric':
+                units[int(key)] = '°/' + str(well.info['dlsResolution']) + 'm'
+            else:
+                units[int(key)] = '°/' + str(well.info['dlsResolution']) + 'ft'
+
+    fig.update_layout(xaxis_title=data['x_axis'] + ', ' + units[0],
+                      yaxis_title=data['y_axis'] + ', ' + units[1],)
+
+    fig.update_layout(title='Wellbore Trajectory - ' + data['x_axis'] + ' vs ' + data['y_axis'], hovermode='closest')
+    style = define_style(data['style'])
+    fig.layout.template = style['darkMode']
+
+    return fig

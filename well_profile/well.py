@@ -1,5 +1,5 @@
 from .equations import *
-from .plot import plot_wellpath, plot_top_view
+from .plot import plot_wellpath, plot_top_view, plot_vs
 import pandas as pd
 
 
@@ -23,15 +23,23 @@ class Well(object):
                                     'sectionType': data['sections'][point],
                                     'delta': data['delta'][point]})
 
-    def plot(self, plot_type='3d', add_well=None, names=None, style=None):
-        if plot_type == '3d':
-            fig = plot_wellpath(self, add_well, names, style)
+    def plot(self, **kwargs):
+        default = {'plot_type': '3d', 'add_well': None, 'names': None, 'style': None, 'y_axis': 'md', 'x_axis': 'inc'}
+        for key, value in kwargs.items():
+            default[key] = value
+
+        if default['plot_type'] == '3d':
+            fig = plot_wellpath(self, add_well=default['add_well'], names=default['names'], style=default['style'])
             return fig
-        elif plot_type == 'top':
-            fig = plot_top_view(self, add_well, names, style)
+        elif default['plot_type'] == 'top':
+            fig = plot_top_view(self, add_well=default['add_well'], names=default['names'], style=default['style'])
+            return fig
+        elif default['plot_type'] == 'vs':
+            fig = plot_vs(self, y_axis=default['y_axis'], x_axis=default['x_axis'], add_well=default['add_well'],
+                          names=default['names'], style=default['style'])
             return fig
         else:
-            raise TypeError('This plot type is not recognised')
+            raise ValueError('The plot type "{}" is not recognised'.format(default['plot_type'] ))
 
     def df(self):
         dataframe = pd.DataFrame(self.trajectory)
