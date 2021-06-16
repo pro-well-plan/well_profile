@@ -92,6 +92,7 @@ def plot_wellpath(well, **kwargs):
             aspectmode='manual'))
     fig.update_scenes(zaxis_autorange="reversed")
     fig.layout.template = style['darkMode']
+    include_logo(fig, style['darkMode'])
     fig.update_layout(title='Wellbore Trajectory - 3D View')
 
     return fig
@@ -136,24 +137,12 @@ def plot_top_view(well, **kwargs):
                           yaxis_title='North, ft')
 
     fig.update_layout(title='Wellbore Trajectory - Top View', hovermode='closest')
+
     style = define_style(data['style'])
+    include_logo(fig, style['darkMode'])
     fig.layout.template = style['darkMode']
 
     return fig
-
-
-def define_style(style):
-    set_style = {'darkMode': False, 'color': None, 'size': 2}
-    if style is not None:
-        for key in style.keys():
-            set_style[key] = style[key]
-
-    if set_style['darkMode']:
-        set_style['darkMode'] = 'plotly_dark'
-    else:
-        set_style['darkMode'] = None
-
-    return set_style
 
 
 def plot_vs(well, **kwargs):
@@ -207,11 +196,45 @@ def plot_vs(well, **kwargs):
             else:
                 units[int(key)] = '°/' + str(well.info['dlsResolution']) + 'ft'
 
-    fig.update_layout(xaxis_title=data['x_axis'] + ', ' + units[0],
-                      yaxis_title=data['y_axis'] + ', ' + units[1],)
-
-    fig.update_layout(title='Wellbore Trajectory - ' + data['x_axis'] + ' vs ' + data['y_axis'], hovermode='closest')
     style = define_style(data['style'])
+    include_logo(fig, style['darkMode'])
     fig.layout.template = style['darkMode']
 
+    fig.update_layout(xaxis_title=data['x_axis'] + ', ' + units[0],
+                      yaxis_title=data['y_axis'] + ', ' + units[1],
+                      title='Wellbore Trajectory - ' + data['x_axis'] + ' vs ' + data['y_axis'],
+                      hovermode='closest')
+
     return fig
+
+
+def define_style(style):
+    set_style = {'darkMode': False, 'color': None, 'size': 2}
+    if style is not None:
+        for key in style.keys():
+            set_style[key] = style[key]
+
+    if set_style['darkMode']:
+        set_style['darkMode'] = 'plotly_dark'
+    else:
+        set_style['darkMode'] = None
+
+    return set_style
+
+
+def include_logo(fig, dark=None):
+    if dark == 'plotly_dark':
+        fig.update_layout(images=[dict(
+                          source="https://raw.githubusercontent.com/jcamiloangarita/opensource_apps/master/"
+                                 "resources/pwp-logo-dark.png",
+                          xref="paper", yref="paper",
+                          x=0.3, y=1.04,
+                          sizex=0.12, sizey=0.12,
+                          xanchor="right", yanchor="bottom")])
+    else:
+        fig.update_layout(images=[dict(
+                          source="https://avatars.githubusercontent.com/u/53001276?v=4",
+                          xref="paper", yref="paper",
+                          x=0.4, y=1,
+                          sizex=0.2, sizey=0.2,
+                          xanchor="right", yanchor="bottom")])
