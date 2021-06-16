@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 setup(
     name='well_profile',
     packages=['well_profile'],
-    version='0.6.0b2',
+    version='0.6.0b3',
     license='LGPL v3',
     description='Well Profile Builder',
     long_description=long_description,
