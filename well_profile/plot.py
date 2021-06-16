@@ -92,7 +92,7 @@ def plot_wellpath(well, **kwargs):
             aspectmode='manual'))
     fig.update_scenes(zaxis_autorange="reversed")
     fig.layout.template = style['darkMode']
-    include_logo(fig, style['darkMode'])
+    include_logo(fig, style['darkMode'], plot_type='3D', color=style['color'])
     fig.update_layout(title='Wellbore Trajectory - 3D View')
 
     return fig
@@ -139,7 +139,7 @@ def plot_top_view(well, **kwargs):
     fig.update_layout(title='Wellbore Trajectory - Top View', hovermode='closest')
 
     style = define_style(data['style'])
-    include_logo(fig, style['darkMode'])
+    include_logo(fig, style['darkMode'], plot_type='top')
     fig.layout.template = style['darkMode']
 
     return fig
@@ -197,7 +197,7 @@ def plot_vs(well, **kwargs):
                 units[int(key)] = '°/' + str(well.info['dlsResolution']) + 'ft'
 
     style = define_style(data['style'])
-    include_logo(fig, style['darkMode'])
+    include_logo(fig, style['darkMode'], plot_type='vs')
     fig.layout.template = style['darkMode']
 
     fig.update_layout(xaxis_title=data['x_axis'] + ', ' + units[0],
@@ -222,19 +222,33 @@ def define_style(style):
     return set_style
 
 
-def include_logo(fig, dark=None):
+def include_logo(fig, dark=None, plot_type='3D', color=None):
+    if not color:
+        if not dark:
+            y = 0.91
+        else:
+            y = 0.95
+    else:
+        if not dark:
+            y = 0.97
+        else:
+            y = 1
     if dark == 'plotly_dark':
+        if plot_type != '3D':
+            y = 1.03
         fig.update_layout(images=[dict(
                           source="https://raw.githubusercontent.com/jcamiloangarita/opensource_apps/master/"
                                  "resources/pwp-logo-dark.png",
                           xref="paper", yref="paper",
-                          x=0.3, y=1.04,
+                          x=0.5, y=y,
                           sizex=0.12, sizey=0.12,
                           xanchor="right", yanchor="bottom")])
     else:
+        if plot_type != '3D':
+            y = 0.99
         fig.update_layout(images=[dict(
                           source="https://avatars.githubusercontent.com/u/53001276?v=4",
                           xref="paper", yref="paper",
-                          x=0.4, y=1,
+                          x=0.35, y=y,
                           sizex=0.2, sizey=0.2,
                           xanchor="right", yanchor="bottom")])
