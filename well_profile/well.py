@@ -1,5 +1,5 @@
 from .equations import *
-from .plot import plot_wellpath
+from .plot import plot_wellpath, plot_top_view, plot_vs
 import pandas as pd
 
 
@@ -23,9 +23,23 @@ class Well(object):
                                     'sectionType': data['sections'][point],
                                     'delta': data['delta'][point]})
 
-    def plot(self, add_well=None, names=None, style=None):
-        fig = plot_wellpath(self, add_well, names, style)
-        return fig
+    def plot(self, **kwargs):
+        default = {'plot_type': '3d', 'add_well': None, 'names': None, 'style': None, 'y_axis': 'md', 'x_axis': 'inc'}
+        for key, value in kwargs.items():
+            default[key] = value
+
+        if default['plot_type'] == '3d':
+            fig = plot_wellpath(self, add_well=default['add_well'], names=default['names'], style=default['style'])
+            return fig
+        elif default['plot_type'] == 'top':
+            fig = plot_top_view(self, add_well=default['add_well'], names=default['names'], style=default['style'])
+            return fig
+        elif default['plot_type'] == 'vs':
+            fig = plot_vs(self, y_axis=default['y_axis'], x_axis=default['x_axis'], add_well=default['add_well'],
+                          names=default['names'], style=default['style'])
+            return fig
+        else:
+            raise ValueError('The plot type "{}" is not recognised'.format(default['plot_type'] ))
 
     def df(self):
         dataframe = pd.DataFrame(self.trajectory)

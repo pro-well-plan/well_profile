@@ -1,19 +1,9 @@
 from unittest import TestCase
-from well_profile import get, load, two_points
+from well_profile import load
 import pandas as pd
 
 
-class TestCreate(TestCase):
-
-    def test_get(self):
-
-        profile = ['V', 'J', 'S', 'H1', 'H2']
-
-        for x in profile:
-            well = get(100, points=100, profile=x, build_angle=45, kop=20, eob=40, sod=60, eod=80,
-                       kop2=60, eob2=80)
-
-            run_assertions(self, well, 100)
+class TestLoadTrajectory(TestCase):
 
     def test_load_from_excel(self):
         well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
@@ -68,36 +58,6 @@ class TestCreate(TestCase):
         self.assertIsInstance(well, object, msg='main function is not returning an object')
         self.assertIsInstance(well_initial, pd.DataFrame, msg='method is not returning a dataframe')
 
-    def test_gen_two_points_case1(self):
-        # change in vertical = change in horizontal
-        point_1 = {'north': 50, 'east': 20, 'tvd': 300}
-        point_2 = {'north': 0, 'east': -500, 'tvd': 800}
-
-        well = two_points({'kickoff': point_1, 'target': point_2})
-
-        two_points_assertions(self, well, point_1, point_2)
-        run_assertions(self, well, well.trajectory[-1]['md'])
-
-    def test_gen_two_points_case2(self):
-        # change in vertical < change in horizontal
-        point_1 = {'north': -35, 'east': 21, 'tvd': 300}
-        point_2 = {'north': -100, 'east': 800, 'tvd': 800}
-
-        well = two_points({'kickoff': point_1, 'target': point_2})
-
-        two_points_assertions(self, well, point_1, point_2)
-        run_assertions(self, well, well.trajectory[-1]['md'])
-
-    def test_gen_two_points_case3(self):
-        # change in vertical > change in horizontal
-        point_1 = {'north': 100, 'east': -48, 'tvd': 300}
-        point_2 = {'north': 500, 'east': 0, 'tvd': 1900}
-
-        well = two_points({'kickoff': point_1, 'target': point_2})
-
-        two_points_assertions(self, well, point_1, point_2)
-        run_assertions(self, well, well.trajectory[-1]['md'])
-
 
 def run_assertions(obj, well, mdt):
     traj = well.trajectory
@@ -105,10 +65,3 @@ def run_assertions(obj, well, mdt):
     obj.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
     obj.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
     obj.assertEqual(well.points, len(traj), msg='Number of points is not correct')
-
-
-def two_points_assertions(obj, well, point_1, point_2):
-    obj.assertEqual(well.trajectory[-1]['north'], point_2['north'], msg='Getting wrong north at TD')
-    obj.assertEqual(well.trajectory[-1]['east'], point_2['east'], msg='Getting wrong east at TD')
-    obj.assertEqual(well.trajectory[0]['north'], point_1['north'], msg='Getting wrong north at Surface')
-    obj.assertEqual(well.trajectory[0]['east'], point_1['east'], msg='Getting wrong east at Surface')

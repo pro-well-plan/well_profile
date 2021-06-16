@@ -10,14 +10,18 @@ def calc_dogleg(inc1, inc2, azi1, azi2):
     :param azi2: azimuth at point 2
     :return: dogleg in radians
     """
-    inner_value = cos(radians(inc1)) * cos(radians(inc2)) + sin(radians(inc1)) * sin(radians(inc2)) * \
-        cos(radians(azi2 - azi1))
-    if inner_value > 1:
-        inner_value = 1
-    if inner_value < -1:
-        inner_value = -1
 
-    return acos(inner_value)
+    if inc1 == inc2 and azi1 == azi2:
+        dl = 0
+    else:
+        inner_value = cos(radians(inc1)) * cos(radians(inc2)) + sin(radians(inc1)) * sin(radians(inc2)) * \
+            cos(radians(azi2 - azi1))
+        if inner_value > 1:
+            inner_value = 1
+        if inner_value < -1:
+            inner_value = -1
+        dl = acos(inner_value)
+    return dl
 
 
 def calc_north(north_prev, md1, md2, inc1, inc2, azi1, azi2, dogleg):
