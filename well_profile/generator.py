@@ -4,11 +4,12 @@ import pandas as pd
 from .load_trajectory import load
 
 
-def two_points(points):
+def two_points(points, inner_points=20):
     """
     Arguments:
         points: {'kickoff':{'north': num, 'east': num, 'tvd': num},
                  'target': {'north': num, 'east': num, 'tvd': num}}
+        inner_points: number of points between curved zone
 
     Returns:
         a wellpath object with 3D position
@@ -56,7 +57,7 @@ def two_points(points):
                 azimuth = 180
 
     # 3 cases comparing vertical and horizontal displacement
-    steps = 20
+    steps = inner_points + 1
     if delta['vertical'] == delta['horizontal']:
         radius = delta['horizontal']
         theta = 90
@@ -92,12 +93,15 @@ def two_points(points):
         return well
 
     if delta['vertical'] > delta['horizontal']:
-        radius = (delta['horizontal']**2 + delta['vertical']**2)/(2*delta['horizontal'])
-        theta = degrees(asin(delta['vertical']/radius))
-        arc = radius * radians(theta)
-
-        new_md = linspace(point_1['tvd'] + arc / steps, point_1['tvd'] + arc, steps)
-        new_inc = linspace(theta / steps, theta, steps)
+        if delta['horizontal'] != 0:
+            radius = (delta['horizontal']**2 + delta['vertical']**2)/(2*delta['horizontal'])
+            theta = degrees(asin(delta['vertical']/radius))
+            arc = radius * radians(theta)
+            new_md = linspace(point_1['tvd'] + arc / steps, point_1['tvd'] + arc, steps)
+            new_inc = linspace(theta / steps, theta, steps)
+        else:
+            new_md = [point_2['tvd']]
+            new_inc = [0]
         for md, inc in zip(new_md, new_inc):
             trajectory.append({'md': md, 'inc': inc, 'azi': azimuth})
 
