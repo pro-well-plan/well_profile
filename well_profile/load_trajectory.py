@@ -11,7 +11,8 @@ def load(data, **kwargs):
 
     Parameters
     ----------
-    data: excel file, dataframe or list of dictionaries.
+    data:
+        Excel file, dataframe or list of dictionaries.
         Must contain at least md, inclination and azimuth. Can also contain tvd, northing and easting.
 
     Keyword Args

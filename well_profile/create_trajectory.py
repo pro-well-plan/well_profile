@@ -4,41 +4,71 @@ from math import degrees
 from .well import Well, define_sections
 
 
-def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, set_start=None,
-        change_azimuth=None, set_info=None):
+def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, **kwargs):
     """
     Generate a wellpath.
 
-    Arguments:
-        mdt: target depth, m or ft
-        points: number of points
-        profile: 'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for
-                                                                                            Horizontal double curve
-        build_angle: building angle, °
-        kop: kick-off point, m or ft
-        eob: end of build, m or ft
-        sod: start of drop, m or ft
-        eod: end of drop, m or ft
-        kop2: kick-off point 2, m or ft
-        eob2: end of build 2, m or ft
-        set_start: set initial point in m {'north': 0, 'east': 0, 'depth': 0}
-        change_azimuth: add specific degrees to azimuth values along the entire well
-        set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
+    Parameters
+    ----------
+    mdt: num
+        target depth, m or ft
+    profile: str
+        'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for
+                                                                                        Horizontal double curve
+    build_angle: num
+        building angle, °
+    kop: num
+        kick-off point, m or ft
+    eob: num
+        end of build, m or ft
+    sod: num
+        start of drop, m or ft
+    eod: num
+        end of drop, m or ft
+    kop2: num
+        kick-off point 2, m or ft
+    eob2: num
+        end of build 2, m or ft
 
-    Returns:
-        a wellpath object with 3D position
+    Keyword Args
+    ------------
+    points: int
+        number of points
+    set_start: dict, None
+        set initial point in m {'north': 0, 'east': 0}.
+    change_azimuth: float, int, None
+        add specific degrees to azimuth values along the entire well.
+    set_info: dict, None
+        dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}.
+    ndigits: int
+        number of decimals for TVD, North and East
+
+    Returns
+    -------
+    well: well object
+        A wellpath object with 3D position
     """
+
+    # Settings
+    params = {'points': None, 'set_start': None, 'change_azimuth': None, 'set_info': None, 'ndigits': 2}
+    for key, value in kwargs.items():
+        params[key] = value
+    set_start = params['set_start']
+    points = params['points']
+    change_azimuth = params['change_azimuth']
+    set_info = params['set_info']
+    ndigits = params['ndigits']
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
     initial_point = {'north': 0, 'east': 0, 'depth': 0}
 
-    if set_info is not None:
+    if isinstance(set_info, dict):
         for param in set_info:  # changing default values
             if param in info:
                 info[param] = set_info[param]
 
-    if set_start is not None:
+    if isinstance(set_start, dict):
         for x in set_start:  # changing default values
             if x in initial_point:
                 initial_point[x] = set_start[x]
@@ -92,7 +122,7 @@ def get(mdt, points=100, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0,
             'east': [x + initial_point['east'] for x in east_new],
             'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
 
-    return Well(data)
+    return Well(data, ndigits)
 
 
 def vertical_section(profile, md, kop, depth_step):
@@ -103,7 +133,7 @@ def vertical_section(profile, md, kop, depth_step):
 
     north = [0] * len(tvd)  # x axis
     east = [0] * len(tvd)  # x axis
-    inclination = [0] * len(tvd)
+    inclination = [0.0] * len(tvd)
     azimuth = [0] * len(tvd)
 
     return tvd, north, east, inclination, azimuth
