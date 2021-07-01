@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.6.0] - 2021-06-16
+### Added
+- Top view plot
+- Versus plot, compare md, tvd, inc, azi, dl and dls
+- ColorBy functionality for 3D plot with multiple wellbores
+
 ## [v0.5.3] - 2021-04-29
 ### Fixed
 - Azimuth calc for two_points function

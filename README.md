@@ -5,7 +5,7 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://share.streamlit.io/jcamiloangarita/opensource_apps/app.py)
 [![Documentation Status](https://readthedocs.org/projects/well_profile/badge/?version=latest)](http://well_profile.readthedocs.io/?badge=latest)
-[![Build Status](https://www.travis-ci.org/pro-well-plan/well_profile.svg?branch=master)](https://www.travis-ci.org/pro-well-plan/well_profile)
+[![Tests](https://github.com/pro-well-plan/well_profile/workflows/Tests/badge.svg)](https://github.com/pro-well-plan/well_profile/actions)
 [![Downloads](https://pepy.tech/badge/well-profile)](https://pepy.tech/project/well-profile)
 
 
