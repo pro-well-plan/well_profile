@@ -4,7 +4,7 @@ import pandas as pd
 
 
 class Well(object):
-    def __init__(self, data):
+    def __init__(self, data, ndigits=2):
         self.depth_step = data['depthStep']
         self.points = data['points']
         self.info = data['info']
@@ -13,12 +13,12 @@ class Well(object):
         self.trajectory = []
         for point in range(len(data['md'])):
             self.trajectory.append({'md': data['md'][point],
-                                    'tvd': round(data['tvd'][point], 2),
+                                    'tvd': round(data['tvd'][point], ndigits),
                                     'inc': data['inclination'][point],
                                     'azi': data['azimuth'][point],
                                     'dl': data['dogleg'][point],
-                                    'north': round(data['north'][point], 2),
-                                    'east': round(data['east'][point], 2),
+                                    'north': round(data['north'][point], ndigits),
+                                    'east': round(data['east'][point], ndigits),
                                     'dls': data['dls'][point],
                                     'sectionType': data['sections'][point],
                                     'delta': data['delta'][point]})
@@ -39,7 +39,7 @@ class Well(object):
                           names=default['names'], style=default['style'])
             return fig
         else:
-            raise ValueError('The plot type "{}" is not recognised'.format(default['plot_type'] ))
+            raise ValueError('The plot type "{}" is not recognised'.format(default['plot_type']))
 
     def df(self):
         dataframe = pd.DataFrame(self.trajectory)

@@ -5,22 +5,51 @@ from math import degrees
 from .well import Well, define_sections
 
 
-def load(data, set_start=None, equidistant=True, points=None, change_azimuth=None, set_info=None, calc_loc=False):
+def load(data, **kwargs):
     """
     Load an existing wellpath.
 
-    Arguments:
-        data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-        set_start: set initial point in m {'north': 0, 'east': 0}
-        equidistant: True to get same md difference between points
-        points: set number of points if equidistant is True
-        change_azimuth: add specific degrees to azimuth values along the entire well
-        set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
-        calc_loc: calculate north, east and tvd, even if this data is available
+    Parameters
+    ----------
+    data: excel file, dataframe or list of dictionaries.
+        Must contain at least md, inclination and azimuth. Can also contain tvd, northing and easting.
 
-    Returns:
-        a wellpath object with 3D position
+    Keyword Args
+    ------------
+        set_start: dict, None
+            set initial point in m {'north': 0, 'east': 0}.
+        equidistant: bool
+            True to get same md difference between points.
+        points: int, None
+            set number of points if equidistant is True.
+        change_azimuth: float, int, None
+            add specific degrees to azimuth values along the entire well.
+        set_info: dict, None
+            dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}.
+        calc_loc: bool
+            calculate north, east and tvd, even if this data is available.
+        ndigits: int
+            number of decimals for TVD, North and East
+
+
+    Returns
+    -------
+    well: well object
+        A wellpath object with 3D position
     """
+
+    # Settings
+    params = {'set_start': None, 'equidistant': True, 'points': None, 'change_azimuth': None, 'set_info': None,
+              'calc_loc': False, 'ndigits': 2}
+    for key, value in kwargs.items():
+        params[key] = value
+    set_start = params['set_start']
+    equidistant = params['equidistant']
+    points = params['points']
+    change_azimuth = params['change_azimuth']
+    set_info = params['set_info']
+    calc_loc = params['calc_loc']
+    ndigits = params['ndigits']
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
@@ -31,12 +60,12 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
 
     processed = False
 
-    if set_info is not None:
+    if isinstance(set_info, dict):
         for param in set_info:  # changing default values
             if param in info:
                 info[param] = set_info[param]
 
-    if set_start is not None:
+    if isinstance(set_start, dict):
         for x in set_start:  # changing default values
             if x in initial_point:
                 initial_point[x] = set_start[x]
@@ -184,7 +213,7 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
             'east': [e + initial_point['east'] for e in east],
             'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
 
-    well = Well(data)
+    well = Well(data, ndigits)
 
     if base_data:
         well._base_data = data_initial
