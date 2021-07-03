@@ -61,7 +61,6 @@ class TestLoadTrajectory(TestCase):
 
 def run_assertions(obj, well, mdt):
     traj = well.trajectory
-    obj.assertIsInstance(well.points, int, msg='points is not an integer')
+    obj.assertIsInstance(well.npoints, int, msg='points is not an integer')
     obj.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
     obj.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
-    obj.assertEqual(well.points, len(traj), msg='Number of points is not correct')

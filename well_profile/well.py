@@ -5,8 +5,6 @@ import pandas as pd
 
 class Well(object):
     def __init__(self, data, ndigits=2):
-        self.depth_step = data['depthStep']
-        self.points = data['points']
         self.info = data['info']
         data['dls'] = calc_dls(data['dogleg'], data['md'], resolution=self.info['dlsResolution'])
         data['delta'] = get_delta(data)
@@ -22,6 +20,7 @@ class Well(object):
                                     'dls': data['dls'][point],
                                     'sectionType': data['sections'][point],
                                     'delta': data['delta'][point]})
+        self.npoints = len(self.trajectory)
 
     def plot(self, **kwargs):
         default = {'plot_type': '3d', 'add_well': None, 'names': None, 'style': None, 'y_axis': 'md', 'x_axis': 'inc'}

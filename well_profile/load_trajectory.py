@@ -1,5 +1,5 @@
 from .equations import *
-from numpy import interp, linspace
+from numpy import interp
 import pandas as pd
 from math import degrees
 from .well import Well, define_sections
@@ -19,10 +19,6 @@ def load(data, **kwargs):
     ------------
         set_start: dict, None
             set initial point in m {'north': 0, 'east': 0}.
-        equidistant: bool
-            True to get same md difference between points.
-        points: int, None
-            set number of points if equidistant is True.
         change_azimuth: float, int, None
             add specific degrees to azimuth values along the entire well.
         set_info: dict, None
@@ -40,13 +36,10 @@ def load(data, **kwargs):
     """
 
     # Settings
-    params = {'set_start': None, 'equidistant': True, 'points': None, 'change_azimuth': None, 'set_info': None,
-              'calc_loc': False, 'ndigits': 2}
+    params = {'set_start': None, 'change_azimuth': None, 'set_info': None, 'calc_loc': False, 'ndigits': 2}
     for key, value in kwargs.items():
         params[key] = value
     set_start = params['set_start']
-    equidistant = params['equidistant']
-    points = params['points']
     change_azimuth = params['change_azimuth']
     set_info = params['set_info']
     calc_loc = params['calc_loc']
@@ -119,34 +112,11 @@ def load(data, **kwargs):
             inc[x] = float(inc[x].split(",", 1)[0])
             az[x] = float(az[x].split(",", 1)[0])
 
-    if equidistant:
-        if points is None:
-            points = len(data)
-        md_new = list(linspace(min(md), max(md), num=points))
-        inc_new = []
-        az_new = []
-        _initial_azi = 0
-        _kickoff = 0
-        _eob = 0
-        for idx, point in enumerate(md):
-            if inc[idx] != 0:
-                _initial_azi = az[idx]
-                _kickoff = md[idx - 1]
-                _eob = point
-                break
-        for i in md_new:
-            inc_new.append(interp(i, md, inc))
-            if _kickoff <= i <= _eob:
-                az_new.append(_initial_azi)
-            else:
-                az_new.append(interp(i, md, az))
-        depth_step = md_new[1] - md_new[0]
-    else:
-        md_new = md
-        inc_new = inc
-        az_new = az
-        points = len(md_new)
-        depth_step = None
+    md_new = md
+    inc_new = inc
+    az_new = az
+    points = len(md_new)
+    depth_step = None
 
     dogleg = [0]
     for x in range(1, len(md_new)):

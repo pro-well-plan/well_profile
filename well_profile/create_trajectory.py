@@ -50,7 +50,7 @@ def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob
     """
 
     # Settings
-    params = {'points': None, 'set_start': None, 'change_azimuth': None, 'set_info': None, 'ndigits': 2}
+    params = {'points': 100, 'set_start': None, 'change_azimuth': None, 'set_info': None, 'ndigits': 2}
     for key, value in kwargs.items():
         params[key] = value
     set_start = params['set_start']
