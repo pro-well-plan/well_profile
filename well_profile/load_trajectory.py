@@ -115,7 +115,6 @@ def load(data, **kwargs):
     md_new = md
     inc_new = inc
     az_new = az
-    points = len(md_new)
     depth_step = None
 
     dogleg = [0]
@@ -182,7 +181,7 @@ def load(data, **kwargs):
     data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
             'north': [n + initial_point['north'] for n in north],
             'east': [e + initial_point['east'] for e in east],
-            'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
+            'info': info, 'depthStep': depth_step, 'sections': sections}
 
     well = Well(data, ndigits)
 
