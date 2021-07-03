@@ -111,7 +111,7 @@ def load(data, **kwargs):
             az[a] += change_azimuth
 
     # CREATING TRAJECTORY POINTS
-    trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical'}]
+    trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical', 'pointType': 'survey'}]
     trajectory[-1].update(initial_point)
     for idx, md in enumerate(md):
         if idx > 0:
@@ -127,7 +127,8 @@ def load(data, **kwargs):
                                        dogleg),
                      'tvd': calc_tvd(trajectory[-1]['tvd'], trajectory[-1]['md'], md,
                                      trajectory[-1]['inc'], inc[idx], dogleg),
-                     'dl': degrees(dogleg)
+                     'dl': degrees(dogleg),
+                     'pointType': 'survey'
                      }
             point['sectionType'] = define_section(point, trajectory[-1])
             trajectory.append(point)

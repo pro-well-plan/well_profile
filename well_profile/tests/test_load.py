@@ -64,3 +64,4 @@ def run_assertions(obj, well, mdt):
     obj.assertIsInstance(well.npoints, int, msg='points is not an integer')
     obj.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
     obj.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
+    obj.assertIn('pointType', traj[0], msg='pointType property was not found for first trajectory point')
