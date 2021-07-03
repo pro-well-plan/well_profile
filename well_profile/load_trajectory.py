@@ -1,8 +1,7 @@
 from .equations import *
-from numpy import interp
 import pandas as pd
 from math import degrees
-from .well import Well, define_sections
+from .well import Well, define_section
 
 
 def load(data, **kwargs):
@@ -25,8 +24,6 @@ def load(data, **kwargs):
             dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}.
         calc_loc: bool
             calculate north, east and tvd, even if this data is available.
-        ndigits: int
-            number of decimals for TVD, North and East
 
 
     Returns
@@ -36,16 +33,12 @@ def load(data, **kwargs):
     """
 
     # Settings
-    params = {'set_start': None, 'change_azimuth': None, 'set_info': None, 'calc_loc': False, 'ndigits': 2,
-              'inner_points': 0}
+    params = {'set_start': None, 'change_azimuth': None, 'set_info': None}
     for key, value in kwargs.items():
         params[key] = value
     set_start = params['set_start']
     change_azimuth = params['change_azimuth']
     set_info = params['set_info']
-    calc_loc = params['calc_loc']
-    ndigits = params['ndigits']
-    inner_points = params['inner_points']
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
@@ -117,79 +110,29 @@ def load(data, **kwargs):
         for a in range(len(az)):
             az[a] += change_azimuth
 
-    md_new = md
-    inc_new = inc
-    az_new = az
+    # CREATING TRAJECTORY POINTS
+    trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical'}]
+    trajectory[-1].update(initial_point)
+    for idx, md in enumerate(md):
+        if idx > 0:
+            dogleg = calc_dogleg(inc[idx-1], inc[idx], az[idx-1], az[idx])
+            point = {'md': md, 'inc': inc[idx], 'azi': az[idx],
+                     'north': calc_north(trajectory[-1]['north'], trajectory[-1]['md'], md,
+                                         trajectory[-1]['inc'], inc[idx],
+                                         trajectory[-1]['azi'], az[idx],
+                                         dogleg),
+                     'east': calc_east(trajectory[-1]['east'], trajectory[-1]['md'], md,
+                                       trajectory[-1]['inc'], inc[idx],
+                                       trajectory[-1]['azi'], az[idx],
+                                       dogleg),
+                     'tvd': calc_tvd(trajectory[-1]['tvd'], trajectory[-1]['md'], md,
+                                     trajectory[-1]['inc'], inc[idx], dogleg),
+                     'dl': degrees(dogleg)
+                     }
+            point['sectionType'] = define_section(point, trajectory[-1])
+            trajectory.append(point)
 
-    dogleg = [0]
-    for x in range(1, len(md_new)):
-        dogleg.append(calc_dogleg(inc_new[x-1], inc_new[x], az_new[x-1], az_new[x]))
-
-    # DEFINING NORTHING/EASTING
-    if 'north' and 'east' in data[0] and not calc_loc:
-        north = [x['north'] for x in data]
-        east = [x['east'] for x in data]
-
-        for x, y in enumerate(north):       # change values to numbers if are strings
-            if type(y) == str:
-                north[x] = float(y.split(",", 1)[0])
-                east[x] = float(east[x].split(",", 1)[0])
-
-        north_new = [data[0]['north']]
-        east_new = [data[0]['east']]
-        for i in md_new[1:]:
-            north_new.append(interp(i, md, north))
-            east_new.append(interp(i, md, east))
-        north = north_new
-        east = east_new
-
-    else:
-        north = [0]
-        east = [0]
-        for x in range(1, len(md_new)):
-            north.append(calc_north(north[-1],
-                                    md_new[x-1], md_new[x],
-                                    inc_new[x-1], inc_new[x],
-                                    az_new[x-1], az_new[x],
-                                    dogleg[x]))
-            east.append(calc_east(east[-1],
-                                  md_new[x - 1], md_new[x],
-                                  inc_new[x - 1], inc_new[x],
-                                  az_new[x - 1], az_new[x],
-                                  dogleg[x]))
-
-    # DEFINING TVD
-    if type(data[0]) is dict and 'tvd' in data[0] and not calc_loc:
-        tvd = [x['tvd'] for x in data]
-        for x, y in enumerate(tvd):     # change values to numbers if are strings
-            if type(y) == str:
-                tvd[x] = float(y.split(",", 1)[0])
-        tvd_new = []
-        for i in md_new:
-            tvd_new.append(interp(i, md, tvd))
-        tvd = tvd_new
-
-    else:
-        tvd = [md_new[0]]
-        for x in range(1, len(md_new)):
-            tvd.append(calc_tvd(tvd[-1],
-                                md_new[x-1],
-                                md_new[x],
-                                inc_new[x-1],
-                                inc_new[x],
-                                dogleg[x]))
-
-    dogleg = [degrees(x) for x in dogleg]
-
-    # Defining type of section
-    sections = define_sections(tvd, inc_new)
-
-    data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
-            'north': [n + initial_point['north'] for n in north],
-            'east': [e + initial_point['east'] for e in east],
-            'info': info, 'sections': sections}
-
-    well = Well(data, ndigits)
+    well = Well({'trajectory': trajectory, 'info': info})
 
     if base_data:
         well._base_data = data_initial

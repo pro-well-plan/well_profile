@@ -1,7 +1,7 @@
 from .equations import *
-from numpy import arange, linspace, interp
+from numpy import arange
 from math import degrees
-from .well import Well, define_sections
+from .well import Well, define_section
 
 
 def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob2=0, **kwargs):
@@ -40,8 +40,6 @@ def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob
         add specific degrees to azimuth values along the entire well.
     set_info: dict, None
         dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}.
-    ndigits: int
-        number of decimals for TVD, North and East
 
     Returns
     -------
@@ -54,10 +52,8 @@ def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob
     for key, value in kwargs.items():
         params[key] = value
     set_start = params['set_start']
-    points = params['points']
     change_azimuth = params['change_azimuth']
     set_info = params['set_info']
-    ndigits = params['ndigits']
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
@@ -75,54 +71,48 @@ def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob
 
     md = list(arange(0, mdt + 1, 1))    # Measured Depth from RKB, m
     depth_step = md[1]
-    tvd = None
-    inclination = None
-    azimuth = None
-    north = None
-    east = None
 
     if profile == 'V':        # Vertical well
-        tvd, north, east, inclination, azimuth = vertical_section(profile, md, kop, depth_step)
+        tvd, north, east, inc, az = vertical_section(profile, md, kop, depth_step)
 
-    if profile == 'J':        # J-type well
-        tvd, north, east, inclination, azimuth = create_j_well(mdt, md, kop, eob, build_angle, depth_step)
+    elif profile == 'J':        # J-type well
+        tvd, north, east, inc, az = create_j_well(mdt, md, kop, eob, build_angle, depth_step)
 
-    if profile == 'S':  # S-type well
-        tvd, north, east, inclination, azimuth = create_s_well(mdt, md, kop, eob, sod, eod, build_angle, depth_step)
+    elif profile == 'S':  # S-type well
+        tvd, north, east, inc, az = create_s_well(mdt, md, kop, eob, sod, eod, build_angle, depth_step)
 
-    if profile == 'H1':     # Horizontal single-curve well
-        tvd, north, east, inclination, azimuth = create_h1_well(mdt, md, kop, eob, depth_step)
+    elif profile == 'H1':     # Horizontal single-curve well
+        tvd, north, east, inc, az = create_h1_well(mdt, md, kop, eob, depth_step)
 
-    if profile == 'H2':        # Horizontal double-curve well
-        tvd, north, east, inclination, azimuth = create_h2_well(mdt, md, kop, eob, kop2, eob2, build_angle, depth_step)
+    else:        # Horizontal double-curve well
+        tvd, north, east, inc, az = create_h2_well(mdt, md, kop, eob, kop2, eob2, build_angle, depth_step)
 
-    # Re-arranging
-    md_new = list(linspace(0, mdt, num=points))
-    depth_step = md_new[1] - md_new[0]
-    tvd_new = [interp(x, md, tvd) for x in md_new]
-    north_new = [interp(x, md, north) for x in md_new]
-    east_new = [interp(x, md, east) for x in md_new]
-    inclination_new = [interp(x, md, inclination) for x in md_new]
-    azimuth_new = [interp(x, md, azimuth) for x in md_new]
     if change_azimuth is not None:
-        azimuth_new, north_new, east_new = mod_azimuth(change_azimuth, azimuth_new, north_new, east_new)
+        az, north_new, east_new = mod_azimuth(change_azimuth, az, north, east)
 
-    # Defining type of section
-    sections = define_sections(tvd_new, inclination_new)
+    # CREATING TRAJECTORY POINTS
+    trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical'}]
+    trajectory[-1].update(initial_point)
+    for idx, md in enumerate(md):
+        if idx > 0:
+            dogleg = calc_dogleg(inc[idx - 1], inc[idx], az[idx - 1], az[idx])
+            point = {'md': md, 'inc': inc[idx], 'azi': az[idx],
+                     'north': calc_north(trajectory[-1]['north'], trajectory[-1]['md'], md,
+                                         trajectory[-1]['inc'], inc[idx],
+                                         trajectory[-1]['azi'], az[idx],
+                                         dogleg),
+                     'east': calc_east(trajectory[-1]['east'], trajectory[-1]['md'], md,
+                                       trajectory[-1]['inc'], inc[idx],
+                                       trajectory[-1]['azi'], az[idx],
+                                       dogleg),
+                     'tvd': calc_tvd(trajectory[-1]['tvd'], trajectory[-1]['md'], md,
+                                     trajectory[-1]['inc'], inc[idx], dogleg),
+                     'dl': degrees(dogleg)
+                     }
+            point['sectionType'] = define_section(point, trajectory[-1])
+            trajectory.append(point)
 
-    dogleg = [0]
-    inc = inclination_new.copy()
-    for x in range(1, len(md_new)):
-        dogleg.append(calc_dogleg(inc[x - 1], inc[x], azimuth_new[x - 1], azimuth_new[x]))
-    dogleg = [degrees(x) for x in dogleg]
-
-    data = {'md': md_new, 'tvd': [x + initial_point['depth'] for x in tvd_new],
-            'inclination': [round(i, 2) for i in inclination_new], 'azimuth': azimuth_new, 'dogleg': dogleg,
-            'north': [x + initial_point['north'] for x in north_new],
-            'east': [x + initial_point['east'] for x in east_new],
-            'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
-
-    return Well(data, ndigits)
+    return Well({'trajectory': trajectory, 'info': info})
 
 
 def vertical_section(profile, md, kop, depth_step):

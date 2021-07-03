@@ -101,17 +101,13 @@ def calc_rf(dogleg):
     return rf
 
 
-def calc_dls(dogleg, md, resolution=30):
+def calc_dls(point, delta_md, resolution=30):
     """
     Calculate dogleg severity with a defined resolution
-    :param dogleg: dogleg between previous and current point
-    :param md: measured depth
+    :param point: trajectory point
+    :param delta_md: MD delta with previous point
     :param resolution: depth window to check
     :return: dls
     """
-    dls = [0]
-    for x in range(1, len(dogleg)):
-        dls_new = dogleg[x] * resolution / (md[x] - md[x-1])
-        dls.append(dls_new)
 
-    return dls
+    return point['dl'] * resolution / delta_md
