@@ -36,7 +36,8 @@ def load(data, **kwargs):
     """
 
     # Settings
-    params = {'set_start': None, 'change_azimuth': None, 'set_info': None, 'calc_loc': False, 'ndigits': 2}
+    params = {'set_start': None, 'change_azimuth': None, 'set_info': None, 'calc_loc': False, 'ndigits': 2,
+              'inner_points': 0}
     for key, value in kwargs.items():
         params[key] = value
     set_start = params['set_start']
@@ -44,6 +45,7 @@ def load(data, **kwargs):
     set_info = params['set_info']
     calc_loc = params['calc_loc']
     ndigits = params['ndigits']
+    inner_points = params['inner_points']
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
@@ -51,8 +53,9 @@ def load(data, **kwargs):
 
     base_data = False
     data_initial = None
-
     processed = False
+
+    # PROCESSING DATA
 
     if isinstance(set_info, dict):
         for param in set_info:  # changing default values
@@ -102,25 +105,27 @@ def load(data, **kwargs):
     else:       # if data is not a list of dicts, but a list of lists
         md, inc, az = data[:3]
 
-    if change_azimuth is not None:
-        for a in range(len(az)):
-            az[a] += change_azimuth
-
+    # DEALING WITH NAN-DATA
     for x, y in enumerate(md):      # change values to numbers if are strings
         if type(y) == str:
             md[x] = float(y.split(",", 1)[0])
             inc[x] = float(inc[x].split(",", 1)[0])
             az[x] = float(az[x].split(",", 1)[0])
 
+    # GENERAL CHANGE IN AZIMUTH
+    if change_azimuth is not None:
+        for a in range(len(az)):
+            az[a] += change_azimuth
+
     md_new = md
     inc_new = inc
     az_new = az
-    depth_step = None
 
     dogleg = [0]
     for x in range(1, len(md_new)):
         dogleg.append(calc_dogleg(inc_new[x-1], inc_new[x], az_new[x-1], az_new[x]))
 
+    # DEFINING NORTHING/EASTING
     if 'north' and 'east' in data[0] and not calc_loc:
         north = [x['north'] for x in data]
         east = [x['east'] for x in data]
@@ -153,6 +158,7 @@ def load(data, **kwargs):
                                   az_new[x - 1], az_new[x],
                                   dogleg[x]))
 
+    # DEFINING TVD
     if type(data[0]) is dict and 'tvd' in data[0] and not calc_loc:
         tvd = [x['tvd'] for x in data]
         for x, y in enumerate(tvd):     # change values to numbers if are strings
@@ -181,7 +187,7 @@ def load(data, **kwargs):
     data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
             'north': [n + initial_point['north'] for n in north],
             'east': [e + initial_point['east'] for e in east],
-            'info': info, 'depthStep': depth_step, 'sections': sections}
+            'info': info, 'sections': sections}
 
     well = Well(data, ndigits)
 
