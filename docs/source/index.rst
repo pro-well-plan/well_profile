@@ -26,8 +26,8 @@ information about any function included in this package.
    installation
    create_profile
    load_profile
-   multiple
    azimuth
+   plotting
 
 About Pro Well Plan
 -------------------
