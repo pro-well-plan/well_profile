@@ -1,26 +1,44 @@
 from .equations import *
-from numpy import interp, linspace
 import pandas as pd
 from math import degrees
-from .well import Well, define_sections
+from .well import Well, define_section
 
 
-def load(data, set_start=None, equidistant=True, points=None, change_azimuth=None, set_info=None, calc_loc=False):
+def load(data, **kwargs):
     """
     Load an existing wellpath.
 
-    Arguments:
-        data: excel file, dataframe or list of dictionaries containing md, tvd, inclination and azimuth
-        set_start: set initial point in m {'north': 0, 'east': 0}
-        equidistant: True to get same md difference between points
-        points: set number of points if equidistant is True
-        change_azimuth: add specific degrees to azimuth values along the entire well
-        set_info: dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}
-        calc_loc: calculate north, east and tvd, even if this data is available
+    Parameters
+    ----------
+    data:
+        Excel file, dataframe or list of dictionaries.
+        Must contain at least md, inclination and azimuth. Can also contain tvd, northing and easting.
 
-    Returns:
-        a wellpath object with 3D position
+    Keyword Args
+    ------------
+        set_start: dict, None
+            set initial point in m {'north': 0, 'east': 0}.
+        change_azimuth: float, int, None
+            add specific degrees to azimuth values along the entire well.
+        set_info: dict, None
+            dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}.
+        calc_loc: bool
+            calculate north, east and tvd, even if this data is available.
+
+
+    Returns
+    -------
+    well: well object
+        A wellpath object with 3D position
     """
+
+    # Settings
+    params = {'set_start': None, 'change_azimuth': None, 'set_info': None}
+    for key, value in kwargs.items():
+        params[key] = value
+    set_start = params['set_start']
+    change_azimuth = params['change_azimuth']
+    set_info = params['set_info']
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
@@ -28,15 +46,16 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
 
     base_data = False
     data_initial = None
-
     processed = False
 
-    if set_info is not None:
+    # PROCESSING DATA
+
+    if isinstance(set_info, dict):
         for param in set_info:  # changing default values
             if param in info:
                 info[param] = set_info[param]
 
-    if set_start is not None:
+    if isinstance(set_start, dict):
         for x in set_start:  # changing default values
             if x in initial_point:
                 initial_point[x] = set_start[x]
@@ -79,112 +98,42 @@ def load(data, set_start=None, equidistant=True, points=None, change_azimuth=Non
     else:       # if data is not a list of dicts, but a list of lists
         md, inc, az = data[:3]
 
-    if change_azimuth is not None:
-        for a in range(len(az)):
-            az[a] += change_azimuth
-
+    # DEALING WITH NAN-DATA
     for x, y in enumerate(md):      # change values to numbers if are strings
         if type(y) == str:
             md[x] = float(y.split(",", 1)[0])
             inc[x] = float(inc[x].split(",", 1)[0])
             az[x] = float(az[x].split(",", 1)[0])
 
-    if equidistant:
-        if points is None:
-            points = len(data)
-        md_new = list(linspace(min(md), max(md), num=points))
-        inc_new = []
-        az_new = []
-        _initial_azi = 0
-        _kickoff = 0
-        _eob = 0
-        for idx, point in enumerate(md):
-            if inc[idx] != 0:
-                _initial_azi = az[idx]
-                _kickoff = md[idx - 1]
-                _eob = point
-                break
-        for i in md_new:
-            inc_new.append(interp(i, md, inc))
-            if _kickoff <= i <= _eob:
-                az_new.append(_initial_azi)
-            else:
-                az_new.append(interp(i, md, az))
-        depth_step = md_new[1] - md_new[0]
-    else:
-        md_new = md
-        inc_new = inc
-        az_new = az
-        points = len(md_new)
-        depth_step = None
+    # GENERAL CHANGE IN AZIMUTH
+    if change_azimuth is not None:
+        for a in range(len(az)):
+            az[a] += change_azimuth
 
-    dogleg = [0]
-    for x in range(1, len(md_new)):
-        dogleg.append(calc_dogleg(inc_new[x-1], inc_new[x], az_new[x-1], az_new[x]))
+    # CREATING TRAJECTORY POINTS
+    trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical', 'pointType': 'survey'}]
+    trajectory[-1].update(initial_point)
+    for idx, md in enumerate(md):
+        if idx > 0:
+            dogleg = calc_dogleg(inc[idx-1], inc[idx], az[idx-1], az[idx])
+            point = {'md': md, 'inc': inc[idx], 'azi': az[idx],
+                     'north': calc_north(trajectory[-1]['north'], trajectory[-1]['md'], md,
+                                         trajectory[-1]['inc'], inc[idx],
+                                         trajectory[-1]['azi'], az[idx],
+                                         dogleg),
+                     'east': calc_east(trajectory[-1]['east'], trajectory[-1]['md'], md,
+                                       trajectory[-1]['inc'], inc[idx],
+                                       trajectory[-1]['azi'], az[idx],
+                                       dogleg),
+                     'tvd': calc_tvd(trajectory[-1]['tvd'], trajectory[-1]['md'], md,
+                                     trajectory[-1]['inc'], inc[idx], dogleg),
+                     'dl': degrees(dogleg),
+                     'pointType': 'survey'
+                     }
+            point['sectionType'] = define_section(point, trajectory[-1])
+            trajectory.append(point)
 
-    if 'north' and 'east' in data[0] and not calc_loc:
-        north = [x['north'] for x in data]
-        east = [x['east'] for x in data]
-
-        for x, y in enumerate(north):       # change values to numbers if are strings
-            if type(y) == str:
-                north[x] = float(y.split(",", 1)[0])
-                east[x] = float(east[x].split(",", 1)[0])
-
-        north_new = [data[0]['north']]
-        east_new = [data[0]['east']]
-        for i in md_new[1:]:
-            north_new.append(interp(i, md, north))
-            east_new.append(interp(i, md, east))
-        north = north_new
-        east = east_new
-
-    else:
-        north = [0]
-        east = [0]
-        for x in range(1, len(md_new)):
-            north.append(calc_north(north[-1],
-                                    md_new[x-1], md_new[x],
-                                    inc_new[x-1], inc_new[x],
-                                    az_new[x-1], az_new[x],
-                                    dogleg[x]))
-            east.append(calc_east(east[-1],
-                                  md_new[x - 1], md_new[x],
-                                  inc_new[x - 1], inc_new[x],
-                                  az_new[x - 1], az_new[x],
-                                  dogleg[x]))
-
-    if type(data[0]) is dict and 'tvd' in data[0] and not calc_loc:
-        tvd = [x['tvd'] for x in data]
-        for x, y in enumerate(tvd):     # change values to numbers if are strings
-            if type(y) == str:
-                tvd[x] = float(y.split(",", 1)[0])
-        tvd_new = []
-        for i in md_new:
-            tvd_new.append(interp(i, md, tvd))
-        tvd = tvd_new
-
-    else:
-        tvd = [md_new[0]]
-        for x in range(1, len(md_new)):
-            tvd.append(calc_tvd(tvd[-1],
-                                md_new[x-1],
-                                md_new[x],
-                                inc_new[x-1],
-                                inc_new[x],
-                                dogleg[x]))
-
-    dogleg = [degrees(x) for x in dogleg]
-
-    # Defining type of section
-    sections = define_sections(tvd, inc_new)
-
-    data = {'md': md_new, 'tvd': tvd, 'inclination': inc_new, 'azimuth': az_new, 'dogleg': dogleg,
-            'north': [n + initial_point['north'] for n in north],
-            'east': [e + initial_point['east'] for e in east],
-            'info': info, 'depthStep': depth_step, 'points': points, 'sections': sections}
-
-    well = Well(data)
+    well = Well({'trajectory': trajectory, 'info': info})
 
     if base_data:
         well._base_data = data_initial

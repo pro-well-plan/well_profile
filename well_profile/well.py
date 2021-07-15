@@ -5,23 +5,17 @@ import pandas as pd
 
 class Well(object):
     def __init__(self, data):
-        self.depth_step = data['depthStep']
-        self.points = data['points']
         self.info = data['info']
-        data['dls'] = calc_dls(data['dogleg'], data['md'], resolution=self.info['dlsResolution'])
-        data['delta'] = get_delta(data)
-        self.trajectory = []
-        for point in range(len(data['md'])):
-            self.trajectory.append({'md': data['md'][point],
-                                    'tvd': round(data['tvd'][point], 2),
-                                    'inc': data['inclination'][point],
-                                    'azi': data['azimuth'][point],
-                                    'dl': data['dogleg'][point],
-                                    'north': round(data['north'][point], 2),
-                                    'east': round(data['east'][point], 2),
-                                    'dls': data['dls'][point],
-                                    'sectionType': data['sections'][point],
-                                    'delta': data['delta'][point]})
+        self.trajectory = data['trajectory']
+        for idx, point in enumerate(self.trajectory):
+            if idx > 0:
+                delta_md = point['md'] - self.trajectory[idx - 1]['md']
+                point['dls'] = calc_dls(point, delta_md, resolution=self.info['dlsResolution'])
+                point['delta'] = get_delta(point, self.trajectory[idx-1])
+            else:
+                point['dls'] = 0
+                point['delta'] = get_delta(point)
+        self.npoints = len(self.trajectory)
 
     def plot(self, **kwargs):
         default = {'plot_type': '3d', 'add_well': None, 'names': None, 'style': None, 'y_axis': 'md', 'x_axis': 'inc'}
@@ -39,7 +33,7 @@ class Well(object):
                           names=default['names'], style=default['style'])
             return fig
         else:
-            raise ValueError('The plot type "{}" is not recognised'.format(default['plot_type'] ))
+            raise ValueError('The plot type "{}" is not recognised'.format(default['plot_type']))
 
     def df(self):
         dataframe = pd.DataFrame(self.trajectory)
@@ -58,45 +52,35 @@ class Well(object):
                               'seabed': references['rkb'] + references['waterDepth']})
 
 
-def define_sections(tvd, inc):
-    sections = ['vertical', 'vertical']
-    for z in range(2, len(tvd)):
-        delta_tvd = round(tvd[z] - tvd[z - 1], 9)
-        if inc[z] == 0:  # Vertical Section
-            sections.append('vertical')
+def define_section(p2, p1=None):
+
+    if not p1:
+        return 'vertical'
+
+    else:
+        if p2['inc'] == p1['inc'] == 0:
+            return 'vertical'
         else:
-            if round(inc[z], 2) == round(inc[z - 1], 2):
-                if delta_tvd == 0:
-                    sections.append('horizontal')  # Horizontal Section
+            if round(p2['inc'], 2) == round(p1['inc'], 2):
+                if p2['tvd'] == p1['tvd'] == 0:
+                    return 'horizontal'  # Horizontal Section
                 else:
-                    sections.append('hold')  # Straight Inclined Section
+                    return 'hold'  # Straight Inclined Section
             else:
-                if inc[z] > inc[z - 1]:  # Built-up Section
-                    sections.append('build-up')
-                if inc[z] < inc[z - 1]:  # Drop-off Section
-                    sections.append('drop-off')
-
-    return sections
+                if p2['inc'] > p1['inc']:
+                    return 'build-up'   # Built-up Section
+                if p2['inc'] < p1['inc']:
+                    return 'drop-off'   # Drop-off Section
 
 
-def get_delta(trajectory):
-    delta = [{'md': 0,
-              'tvd': 0,
-              'inc': 0,
-              'azi': 0,
-              'dl': 0,
-              'dls': 0,
-              'north': 0,
-              'east': 0}]
+def get_delta(p2, p1=None):
 
-    for idx in range(1, len(trajectory['md'])):
-        delta.append({'md': trajectory['md'][idx] - trajectory['md'][idx-1],
-                      'tvd': trajectory['tvd'][idx] - trajectory['tvd'][idx-1],
-                      'inc': trajectory['inclination'][idx] - trajectory['inclination'][idx-1],
-                      'azi': trajectory['azimuth'][idx] - trajectory['azimuth'][idx-1],
-                      'dl': trajectory['dogleg'][idx] - trajectory['dogleg'][idx-1],
-                      'dls': trajectory['dls'][idx] - trajectory['dls'][idx-1],
-                      'north': trajectory['north'][idx] - trajectory['north'][idx-1],
-                      'east': trajectory['east'][idx] - trajectory['east'][idx-1]})
+    if not p1:
+        return {'md': 0, 'tvd': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'dls': 0, 'north': 0, 'east': 0}
+
+    else:
+        delta = {}
+        for param in ['md', 'tvd', 'inc', 'azi', 'dl', 'dls', 'north', 'east']:
+            delta.update({param: p2[param] - p1[param]})
 
     return delta

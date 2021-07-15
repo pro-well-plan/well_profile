@@ -52,13 +52,15 @@ class TestTwoPoints(TestCase):
 
 def run_assertions(obj, well, mdt):
     traj = well.trajectory
-    obj.assertIsInstance(well.points, int, msg='points is not an integer')
+    obj.assertIsInstance(well.npoints, int, msg='points is not an integer')
     obj.assertEqual(traj[-1]['md'], mdt, msg='Target depth not reached')
     obj.assertEqual(traj[0]['md'], traj[0]['tvd'], msg='MD and TVD are different at first cell')
-    obj.assertEqual(well.points, len(traj), msg='Number of points is not correct')
 
 
 def two_points_assertions(obj, well, point_1, point_2):
+    for point in [well.trajectory[0], well.trajectory[-1]]:
+        for param in ['north', 'east']:
+            point[param] = round(point[param], 8)
     obj.assertEqual(well.trajectory[-1]['north'], point_2['north'], msg='Getting wrong north at TD')
     obj.assertEqual(well.trajectory[-1]['east'], point_2['east'], msg='Getting wrong east at TD')
     obj.assertEqual(well.trajectory[0]['north'], point_1['north'], msg='Getting wrong north at Surface')

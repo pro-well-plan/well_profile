@@ -22,9 +22,10 @@ curvature method. North and East coordinates also can be included.
 
     >>> import well_profile as wp
     >>> well = wp.load('trajectory1.xlsx',   # define target depth (md) in m or ft
-    >>>                cells_no=100,  # (optional) define number of cells
-    >>>                units='metric',  # (optional) define system of units 'metric' for meters or 'english' for feet
-    >>>                set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
+    >>>               set_info={'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
+    >>>               set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
     >>> well.plot(names=['loaded from excel']).show()
 
 |load_excel|
@@ -39,9 +40,10 @@ From csv file
 
     >>> import well_profile as wp
     >>> well = wp.load('trajectory1.csv',   # define target depth (md) in m or ft
-    >>>                cells_no=100,  # (optional) define number of cells
-    >>>                units='metric',  # (optional) define system of units 'metric' for meters or 'english' for feet
-    >>>                set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
+    >>>               set_info={'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
+    >>>               set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
     >>> well.plot(names=['loaded from csv']).show()
 
 |load_csv|
