@@ -15,6 +15,7 @@ Vertical well
 
     >>> import well_profile as wp
     >>> well = wp.get(3000,   # define target depth (md) in m or ft
+    >>>               profile='V',    # set Vertical well profile
     >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
     >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
     >>>               # for meters or 'english' for feet
