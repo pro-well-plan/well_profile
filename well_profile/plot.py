@@ -104,6 +104,7 @@ def plot_top_view(well, **kwargs):
         data[key] = value
 
     wells = [well]
+    units = well.info['units']
 
     if data['add_well'] is not None:
         if type(data['add_well']) is not list:
@@ -115,10 +116,8 @@ def plot_top_view(well, **kwargs):
             data['names'] = [data['names']]
     else:
         data['names'] = []
-        well_no = 1
-        for idx, well in enumerate(wells):
-            data['names'].append('well ' + str(well_no))
-            well_no += 1
+        for idx in range(len(wells)):
+            data['names'].append('well ' + str(idx + 1))
 
     fig = go.Figure()
 
@@ -129,7 +128,7 @@ def plot_top_view(well, **kwargs):
             hovertemplate='<b>North</b>: %{y:.2f}<br>' + '<b>East</b>: %{x}<br>',
             showlegend=False, name=data['names'][idx]))
 
-    if well.info['units'] == 'metric':
+    if units == 'metric':
         fig.update_layout(xaxis_title='East, m',
                           yaxis_title='North, m')
     else:
@@ -146,6 +145,8 @@ def plot_top_view(well, **kwargs):
 
 
 def plot_vs(well, **kwargs):
+    unit_system = well.info['units']
+    dls_res = well.info['dlsResolution']
     data = {'y_axis': 'md', 'x_axis': 'inc', 'add_well': None, 'names': None, 'style': None}
     for key, value in kwargs.items():
         data[key] = value
@@ -167,10 +168,8 @@ def plot_vs(well, **kwargs):
             data['names'] = [data['names']]
     else:
         data['names'] = []
-        well_no = 1
-        for idx, well in enumerate(wells):
-            data['names'].append('well ' + str(well_no))
-            well_no += 1
+        for idx in range(len(wells)):
+            data['names'].append('well ' + str(idx+1))
 
     fig = go.Figure()
 
@@ -184,17 +183,17 @@ def plot_vs(well, **kwargs):
     units = ['m', '°']
     for key, axis, in {'0': data['x_axis'], '1': data['y_axis']}.items():
         if axis in ['md', 'tvd']:
-            if well.info['units'] == 'metric':
+            if unit_system == 'metric':
                 units[int(key)] = 'm'
             else:
                 units[int(key)] = 'ft'
         elif axis in ['inc', 'azi', 'dl']:
             units[int(key)] = '°'
         elif axis == 'dls':
-            if well.info['units'] == 'metric':
-                units[int(key)] = '°/' + str(well.info['dlsResolution']) + 'm'
+            if unit_system == 'metric':
+                units[int(key)] = '°/' + str(dls_res) + 'm'
             else:
-                units[int(key)] = '°/' + str(well.info['dlsResolution']) + 'ft'
+                units[int(key)] = '°/' + str(dls_res) + 'ft'
 
     style = define_style(data['style'])
     include_logo(fig, style['darkMode'], plot_type='vs')
