@@ -13,8 +13,7 @@ def get(mdt, profile='V', build_angle=1, kop=0, eob=0, sod=0, eod=0, kop2=0, eob
     mdt: num
         target depth, m or ft
     profile: str
-        'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for
-                                                                                        Horizontal double curve
+        'V' for vertical, 'J' for J-type, 'S' for S-type, 'H1' for Horizontal single curve and 'H2' for Horizontal double curve
     build_angle: num
         building angle, °
     kop: num
