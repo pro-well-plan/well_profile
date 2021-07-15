@@ -22,7 +22,7 @@ curvature method. North and East coordinates also can be included.
 
     >>> import well_profile as wp
     >>> well = wp.load('trajectory1.xlsx',   # define target depth (md) in m or ft
-    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               set_info={'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'},
     >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
     >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
@@ -40,7 +40,7 @@ From csv file
 
     >>> import well_profile as wp
     >>> well = wp.load('trajectory1.csv',   # define target depth (md) in m or ft
-    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               set_info={'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'},
     >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
     >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})  # (optional) set the location of initial point
