@@ -15,9 +15,11 @@ Vertical well
 
     >>> import well_profile as wp
     >>> well = wp.get(3000,   # define target depth (md) in m or ft
-    >>>               cells_no=100,   # (optional) define number of cells
-    >>>               units='metric',   # (optional) define system of units 'metric' for meters or 'english' for feet
+    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})    # (optional) set the location of initial point
+    >>>               points=100,   # (optional) define number of points
     >>> well.plot(names=['Wellbore ID']).show()
 
 |create_vertical|
@@ -37,9 +39,11 @@ J-type well
     >>>               kop=800,    # set kick off point in m or ft
     >>>               eob=2000,   # set end of build in m or ft
     >>>               build_angle=78,   # set build angle in °
-    >>>               cells_no=100,   # (optional) define number of cells
-    >>>               units='metric',   # (optional) define system of units 'metric' for meters or 'english' for feet
+    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})    # (optional) set the location of initial point
+    >>>               points=100,   # (optional) define number of points
     >>> well.plot(names=['Wellbore ID']).show()
 
 |create_j|
@@ -61,9 +65,11 @@ S-type well
     >>>               build_angle=45,   # set build angle in °
     >>>               sod=1800,   # set start of drop in m or ft
     >>>               eod=2800,   # set end of drop in m or ft
-    >>>               cells_no=100,   # (optional) define number of cells
-    >>>               units='metric',   # (optional) define system of units 'metric' for meters or 'english' for feet
+    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})    # (optional) set the location of initial point
+    >>>               points=100,   # (optional) define number of points
     >>> well.plot(names=['Wellbore ID']).show()
 
 |create_s|
@@ -83,9 +89,11 @@ Horizontal single curve well
     >>>               kop=800,    # set kick off point in m or ft
     >>>               eob=1500,   # set end of build in m or ft
     >>>               build_angle=45,   # set build angle in °
-    >>>               cells_no=100,   # (optional) define number of cells
-    >>>               units='metric',   # (optional) define system of units 'metric' for meters or 'english' for feet
+    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})    # (optional) set the location of initial point
+    >>>               points=100,   # (optional) define number of points
     >>> well.plot(names=['Wellbore ID']).show()
 
 |create_h1|
@@ -105,9 +113,11 @@ Horizontal double curve well
     >>>               kop=800,    # set kick off point in m or ft
     >>>               eob=1500,   # set end of build in m or ft
     >>>               build_angle=45,   # set build angle in °
-    >>>               cells_no=100,   # (optional) define number of cells
-    >>>               units='metric',   # (optional) define system of units 'metric' for meters or 'english' for feet
+    >>>               set_info={'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'},
+    >>>               # (optional) define the resolution for dls calculation, well type and system of units 'metric'
+    >>>               # for meters or 'english' for feet
     >>>               set_start={'north': 0, 'east': 0, 'depth': 0})    # (optional) set the location of initial point
+    >>>               points=100,   # (optional) define number of points
     >>> well.plot(names=['Wellbore ID']).show()
 
 |create_h2|
