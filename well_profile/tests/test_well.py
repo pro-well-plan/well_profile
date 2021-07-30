@@ -6,7 +6,7 @@ class TestLoadTrajectory(TestCase):
 
     def test_get_point(self):
         well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
-        print(well.df().to_string())
+
         with self.assertRaises(ValueError):
             well.get_point(-10)
 
