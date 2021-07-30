@@ -1,8 +1,8 @@
 from .equations import *
 import pandas as pd
-from math import degrees, atan
+from math import degrees
 from .well import Well, define_section
-from numpy import linspace, pi
+from numpy import linspace
 
 
 def load(data, **kwargs):
@@ -149,24 +149,7 @@ def load(data, **kwargs):
                     for new_md in md_segment:
                         dl_new = dl_unit * count
                         inner_point = {'md': new_md, 'dl': dl_unit}
-                        inner_point = get_inc_azi(inner_point, p1, point, dl_new)
-
-                        inner_point['north'] = calc_north(trajectory[-1]['north'], trajectory[-1]['md'],
-                                                          inner_point['md'],
-                                                          trajectory[-1]['inc'], inner_point['inc'],
-                                                          trajectory[-1]['azi'], inner_point['azi'],
-                                                          radians(inner_point['dl']))
-                        inner_point['east'] = calc_east(trajectory[-1]['east'], trajectory[-1]['md'],
-                                                        inner_point['md'],
-                                                        trajectory[-1]['inc'], inner_point['inc'],
-                                                        trajectory[-1]['azi'], inner_point['azi'],
-                                                        radians(inner_point['dl']))
-                        inner_point['tvd'] = calc_tvd(trajectory[-1]['tvd'], trajectory[-1]['md'], inner_point['md'],
-                                                      trajectory[-1]['inc'], inner_point['inc'],
-                                                      radians(inner_point['dl']))
-                        inner_point['pointType'] = 'interpolated'
-                        inner_point['sectionType'] = point['sectionType']
-
+                        inner_pt_calcs(inner_point, p1, point, dl_sv=dl_new)
                         count += 1
                         trajectory.append(inner_point)
                     point['dl'] = dl_unit
@@ -238,42 +221,3 @@ def solve_key_similarities(data):
         true_key += 1
 
     return data
-
-
-def adjust_azi(azi, azi1, azi2):
-    limits = sorted([azi1, azi2])
-    count = 1
-    while not limits[0] <= azi <= limits[1]:
-        if azi > limits[1]:
-            azi -= 90
-        else:
-            azi += 90
-        count += 1
-        if count == 4:
-            break
-    return azi
-
-
-def component(p, comp):
-    if comp == 'n':
-        return sin(radians(p['inc'])) * cos(radians(p['azi']))
-    if comp == 'e':
-        return sin(radians(p['inc'])) * sin(radians(p['azi']))
-    if comp == 'v':
-        return cos(radians(p['inc']))
-
-
-def delta(p1, p2, dl_new, comp):
-    c1 = sin(radians(p2['dl'])-radians(dl_new)) * component(p1, comp) / sin(radians(p2['dl']))
-    c2 = sin(radians(dl_new)) * component(p2, comp) / sin(radians(p2['dl']))
-    return c1 + c2
-
-
-def get_inc_azi(p, p1, p2, dl_new):
-    dn = delta(p1, p2, dl_new, 'n')
-    de = delta(p1, p2, dl_new, 'e')
-    dv = delta(p1, p2, dl_new, 'v')
-    p['inc'] = degrees(atan((dn**2 + de**2)**.5 / dv))
-    p['azi'] = degrees((atan(de/dn) + (2 * pi)) % (2 * pi))
-    p['azi'] = adjust_azi(p['azi'], p1['azi'], p2['azi'])
-    return p

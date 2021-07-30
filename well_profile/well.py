@@ -51,6 +51,9 @@ class Well(object):
             self.info.update({'waterDepth': references['waterDepth'],
                               'seabed': references['rkb'] + references['waterDepth']})
 
+    def get_point(self, md):
+        return interp_pt(md, self.trajectory)
+
 
 def define_section(p2, p1=None):
 
@@ -79,8 +82,8 @@ def get_delta(p2, p1=None):
         return {'md': 0, 'tvd': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'dls': 0, 'north': 0, 'east': 0}
 
     else:
-        delta = {}
+        delta_dict = {}
         for param in ['md', 'tvd', 'inc', 'azi', 'dl', 'dls', 'north', 'east']:
-            delta.update({param: p2[param] - p1[param]})
+            delta_dict.update({param: p2[param] - p1[param]})
 
-    return delta
+    return delta_dict
