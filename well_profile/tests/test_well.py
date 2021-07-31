@@ -19,6 +19,18 @@ class TestLoadTrajectory(TestCase):
 
         with self.assertRaises(ValueError):
             well.get_point(4000)
+
+        # getting two survey points
+        p1 = well.get_point(3722.9)
+        p2 = well.get_point(3761.8)
+        self.assertTrue(p1['pointType'] == p2['pointType'] == 'survey')
+        # interpolate between p1 and p2
+        p12 = well.get_point(3750)
+        self.assertTrue(p12['md'] == 3750)
+        self.assertTrue(p2['inc'] <= p12['inc'] <= p1['inc'])       # p1['inc'] >= p2['inc']
+        self.assertTrue(p1['azi'] == p12['azi'] == p2['azi'])       # constant azi for this section
+        self.assertTrue(p12['dl'] < p2['dl'])
+
         run_assertions(self, well, 3790)
 
 

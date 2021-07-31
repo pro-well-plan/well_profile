@@ -204,9 +204,17 @@ def get_inc_azi(p, p1, p2, dl_new):
     dn = delta(p1, p2, dl_new, 'n')
     de = delta(p1, p2, dl_new, 'e')
     dv = delta(p1, p2, dl_new, 'v')
-    p['inc'] = degrees(atan((dn**2 + de**2)**.5 / dv))
-    p['azi'] = degrees((atan(de/dn) + (2 * pi)) % (2 * pi))
+    if p1['inc'] == p2['inc']:
+        p['inc'] = p1['inc']
+    else:
+        p['inc'] = degrees(atan((dn**2 + de**2)**.5 / dv))
+    if p1['azi'] == p2['azi']:
+        p['azi'] = p1['azi']
+    else:
+        p['azi'] = degrees((atan(de / dn) + (2 * pi)) % (2 * pi))
+
     p['azi'] = adjust_azi(p['azi'], p1['azi'], p2['azi'])
+
     return p
 
 
