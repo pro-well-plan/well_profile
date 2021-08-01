@@ -10,6 +10,20 @@ class TestLoadTrajectory(TestCase):
 
         run_assertions(self, well, 3790)
 
+    def test_inner_pts(self):
+        well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx',
+                    inner_points=1)
+        survey_pts = [p for p in well.trajectory if p['pointType'] == 'survey']
+        inner_pts = [p for p in well.trajectory if p['pointType'] == 'interpolated']
+        self.assertTrue(survey_pts[-1]['md'] > inner_pts[-1]['md'])
+        self.assertTrue(survey_pts[-1]['tvd'] > inner_pts[-1]['tvd'])
+        self.assertAlmostEqual(max([p['dl'] for p in survey_pts]), max([p['dl'] for p in inner_pts]))
+        self.assertAlmostEqual(max([p['dls'] for p in survey_pts]), max([p['dls'] for p in inner_pts]))
+        self.assertTrue(any([p['pointType'] == 'interpolated' for p in well.trajectory]))
+        self.assertTrue(max([p['inc'] for p in survey_pts]) > max([p['inc'] for p in inner_pts]))
+
+        run_assertions(self, well, 3790)
+
     def test_load_from_df(self):
 
         df = pd.read_excel(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/'

@@ -2,6 +2,7 @@ from .equations import *
 import pandas as pd
 from math import degrees
 from .well import Well, define_section
+from numpy import linspace
 
 
 def load(data, **kwargs):
@@ -22,8 +23,8 @@ def load(data, **kwargs):
             add specific degrees to azimuth values along the entire well.
         set_info: dict, None
             dict, {'dlsResolution', 'wellType': 'onshore'|'offshore', 'units': 'metric'|'english'}.
-        calc_loc: bool
-            calculate north, east and tvd, even if this data is available.
+        inner_pts: num
+            include certain amount of inner points between survey stations.
 
 
     Returns
@@ -33,12 +34,10 @@ def load(data, **kwargs):
     """
 
     # Settings
-    params = {'set_start': None, 'change_azimuth': None, 'set_info': None}
-    for key, value in kwargs.items():
-        params[key] = value
-    set_start = params['set_start']
-    change_azimuth = params['change_azimuth']
-    set_info = params['set_info']
+    set_start = kwargs.get('set_start', None)
+    change_azimuth = kwargs.get('change_azimuth', None)
+    set_info = kwargs.get('set_info', None)
+    inner_pts = kwargs.get('inner_points', 0)
 
     info = {'dlsResolution': 30, 'wellType': 'offshore', 'units': 'metric'}
 
@@ -113,8 +112,15 @@ def load(data, **kwargs):
     # CREATING TRAJECTORY POINTS
     trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical', 'pointType': 'survey'}]
     trajectory[-1].update(initial_point)
+    inner_pts += 2
+
+    if md[0] != 0:
+        md = [0] + md
+        inc = [0] + inc
+        az = [0] + az
+
     for idx, md in enumerate(md):
-        if idx > 0:
+        if md > 0:
             dogleg = calc_dogleg(inc[idx-1], inc[idx], az[idx-1], az[idx])
             point = {'md': md, 'inc': inc[idx], 'azi': az[idx],
                      'north': calc_north(trajectory[-1]['north'], trajectory[-1]['md'], md,
@@ -131,8 +137,23 @@ def load(data, **kwargs):
                      'pointType': 'survey'
                      }
             point['sectionType'] = define_section(point, trajectory[-1])
-            trajectory.append(point)
+            p1 = trajectory[-1]
 
+            if inner_pts > 2:
+                dl_unit = point['dl'] / (inner_pts - 1)
+                condition = sin(radians(p1['inc'])) * sin(radians(point['inc'])) * sin(
+                    radians(point['azi'] - trajectory[-1]['azi']))
+                if condition != 0:
+                    md_segment = linspace(p1['md'], point['md'], inner_pts)[1:-1]
+                    count = 1
+                    for new_md in md_segment:
+                        dl_new = dl_unit * count
+                        inner_point = {'md': new_md, 'dl': dl_unit}
+                        inner_pt_calcs(inner_point, p1, point, dl_sv=dl_new)
+                        count += 1
+                        trajectory.append(inner_point)
+                    point['dl'] = dl_unit
+            trajectory.append(point)
     well = Well({'trajectory': trajectory, 'info': info})
 
     if base_data:
