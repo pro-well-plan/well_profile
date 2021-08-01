@@ -26,7 +26,7 @@ Vertical well
 |create_vertical|
 
 .. |create_vertical| image:: /figures/create_vertical.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 J-type well
@@ -50,7 +50,7 @@ J-type well
 |create_j|
 
 .. |create_j| image:: /figures/create_j.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 S-type well
@@ -76,7 +76,7 @@ S-type well
 |create_s|
 
 .. |create_s| image:: /figures/create_s.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 Horizontal single curve well
@@ -100,7 +100,7 @@ Horizontal single curve well
 |create_h1|
 
 .. |create_h1| image:: /figures/create_h1.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 Horizontal double curve well
@@ -124,7 +124,7 @@ Horizontal double curve well
 |create_h2|
 
 .. |create_h2| image:: /figures/create_h2.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 Using two points
