@@ -20,10 +20,10 @@ Requirements
 
 * `numpy`_
 * `pandas`_
-* `xlrd`_
+* `openpyxl`_
 * `plotly`_
 
 .. _numpy: https://pypi.org/project/numpy/
 .. _pandas: https://pypi.org/project/pandas/
-.. _xlrd: https://pypi.org/project/xlrd/
+.. _openpyxl: https://pypi.org/project/openpyxl/
 .. _plotly: https://pypi.org/project/plotly/
