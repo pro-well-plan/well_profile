@@ -26,6 +26,7 @@ information about any function included in this package.
    installation
    create_profile
    load_profile
+   interpolate
    azimuth
    plotting
 

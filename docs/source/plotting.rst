@@ -40,7 +40,7 @@ _____________
 |multiple_same_loc|
 
 .. |multiple_same_loc| image:: /figures/multiple_same_loc.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 Different location
@@ -60,7 +60,7 @@ __________________
 |multiple_diff_loc|
 
 .. |multiple_diff_loc| image:: /figures/multiple_diff_loc.png
-                    :scale: 30%
+                    :scale: 35%
 
 
 Top view
