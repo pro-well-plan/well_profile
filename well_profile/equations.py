@@ -147,9 +147,12 @@ def interp_pt(md, trajectory):
     return inner_pt_calcs(target, p1, p2)
 
 
-def inner_pt_calcs(inner_point, p1, p2, dl_sv=None):
+def inner_pt_calcs(inner_point, p1, p2, dl_sv=None, dls_resolution=30):
     if dl_sv is None:       # dogleg from last survey point (not interpolated)
         dl_sv = inner_point['dl']
+
+    delta_md = inner_point['md'] - p1['md']
+    inner_point['dls'] = calc_dls(inner_point, delta_md, dls_resolution)
     inner_point = get_inc_azi(inner_point, p1, p2, dl_sv)
 
     inner_point['north'] = calc_north(p1['north'], p1['md'],

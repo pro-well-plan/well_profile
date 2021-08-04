@@ -11,11 +11,11 @@ class TestLoadTrajectory(TestCase):
             well.get_point(-10)
 
         self.assertTrue(all([i in well.get_point(0).keys() for i in ['md', 'inc', 'azi', 'north', 'east', 'tvd',
-                                                                     'dl']]))
+                                                                     'dl', 'dls']]))
         self.assertTrue(all([i in well.get_point(2000).keys() for i in ['md', 'inc', 'azi', 'north', 'east', 'tvd',
-                                                                        'dl']]))
+                                                                        'dl', 'dls']]))
         self.assertTrue(all([i in well.get_point(3790).keys() for i in ['md', 'inc', 'azi', 'north', 'east', 'tvd',
-                                                                        'dl']]))
+                                                                        'dl', 'dls']]))
 
         with self.assertRaises(ValueError):
             well.get_point(4000)
@@ -30,6 +30,7 @@ class TestLoadTrajectory(TestCase):
         self.assertTrue(p2['inc'] <= p12['inc'] <= p1['inc'])       # p1['inc'] >= p2['inc']
         self.assertTrue(p1['azi'] == p12['azi'] == p2['azi'])       # constant azi for this section
         self.assertTrue(p12['dl'] < p2['dl'])
+        self.assertTrue((p12['dls'] == p2['dls']))
 
         run_assertions(self, well, 3790)
 
