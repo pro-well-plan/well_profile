@@ -7,9 +7,6 @@ class TestLoadTrajectory(TestCase):
     def test_get_point(self):
         well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
 
-        with self.assertRaises(ValueError):
-            well.get_point(-10)
-
         self.assertTrue(all([i in well.get_point(0).keys() for i in ['md', 'inc', 'azi', 'north', 'east', 'tvd',
                                                                      'dl', 'dls']]))
         self.assertTrue(all([i in well.get_point(2000).keys() for i in ['md', 'inc', 'azi', 'north', 'east', 'tvd',
@@ -17,9 +14,16 @@ class TestLoadTrajectory(TestCase):
         self.assertTrue(all([i in well.get_point(3790).keys() for i in ['md', 'inc', 'azi', 'north', 'east', 'tvd',
                                                                         'dl', 'dls']]))
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError):         # raising error for negative depth
+            well.get_point(-10)
+
+        with self.assertRaises(ValueError):         # raising error for deeper point than trajectory length
             well.get_point(4000)
 
+        # interpolating vertical section
+        p = well.get_point(100)
+        self.assertTrue(p == {'md': 100, 'dl': 0.0, 'north': 0, 'east': 0, 'tvd': 100, 'pointType': 'interpolated',
+                              'sectionType': 'vertical'})
         # getting two survey points
         p1 = well.get_point(3722.9)
         p2 = well.get_point(3761.8)
