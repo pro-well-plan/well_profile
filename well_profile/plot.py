@@ -151,7 +151,7 @@ def plot_vs(well, **kwargs):
     for key, value in kwargs.items():
         data[key] = value
 
-    possible_props = ['md', 'tvd', 'inc', 'azi', 'dl', 'dls']
+    possible_props = ['md', 'tvd', 'north', 'east', 'inc', 'azi', 'dl', 'dls']
     for prop in [data['x_axis'], data['y_axis']]:
         if prop not in possible_props:
             raise ValueError('The axis "{}" is not recognised'.format(prop))
@@ -182,7 +182,7 @@ def plot_vs(well, **kwargs):
 
     units = ['m', '°']
     for key, axis, in {'0': data['x_axis'], '1': data['y_axis']}.items():
-        if axis in ['md', 'tvd']:
+        if axis in ['md', 'tvd', 'north', 'east']:
             if unit_system == 'metric':
                 units[int(key)] = 'm'
             else:

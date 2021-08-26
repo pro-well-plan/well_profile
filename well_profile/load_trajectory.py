@@ -149,7 +149,7 @@ def load(data, **kwargs):
                     for new_md in md_segment:
                         dl_new = dl_unit * count
                         inner_point = {'md': new_md, 'dl': dl_unit}
-                        inner_pt_calcs(inner_point, p1, point, dl_sv=dl_new)
+                        inner_pt_calcs(inner_point, p1, point, dl_sv=dl_new, dls_resolution=info['dlsResolution'])
                         count += 1
                         trajectory.append(inner_point)
                     point['dl'] = dl_unit
