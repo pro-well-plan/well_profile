@@ -163,13 +163,13 @@ def load(data, **kwargs):
 
 
 def solve_key_similarities(data):
-    md_similarities = ['MD', 'md(ft)', 'md(m)', 'MD(m)', 'MD(ft)',
+    md_similarities = ['MD', 'md(ft)', 'md(m)', 'MD(m)', 'MD(ft)', 'MD (ft)',
                        'measureddepth', 'MeasuredDepth',
                        'measureddepth(m)', 'MeasuredDepth(m)',
                        'measureddepth(ft)', 'MeasuredDepth(ft)']
 
     inc_similarities = ['Inclination', 'inclination', 'Inc', 'Incl', 'incl',
-                        'inclination(°)', 'Inclination(°)', 'Incl(°)',
+                        'inclination(°)', 'Inclination(°)', 'Incl(°)', 'Inc°', 'inc°',
                         'incl(°)', 'Inc(°)', 'inc(°)', 'INC', 'INC(°)', 'INCL',
                         'INCL(°)', 'Inc(deg)', 'inc(deg)']
 
@@ -177,7 +177,7 @@ def solve_key_similarities(data):
                         'Az', 'Az(°)',
                         'AZ', 'AZ(°)',
                         'Azi', 'Azi(°)',
-                        'azi(°)',
+                        'azi(°)', 'Azi°',
                         'AZI', 'AZI(°)',
                         'Azimuth', 'Azimuth(°)',
                         'azimuth', 'azimuth(°)',
