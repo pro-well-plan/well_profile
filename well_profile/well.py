@@ -51,8 +51,21 @@ class Well(object):
             self.info.update({'waterDepth': references['waterDepth'],
                               'seabed': references['rkb'] + references['waterDepth']})
 
-    def get_point(self, md):
-        return interp_pt(md, self.trajectory)
+    def get_point(self, depth, depth_type='md'):
+        """
+        Get all the trajectory information at the defined depth
+        :param depth: depth value, MD or TVD
+        :param depth_type: 'md' (by default) or 'tvd'
+        :return: point dictionary with all the data
+        """
+        if depth_type == 'md':
+            return interp_pt(depth, self.trajectory)
+
+        elif depth_type == 'tvd':
+            return scan_tvd(depth, self.trajectory)
+
+        else:
+            raise ValueError(depth_type, ' is not a valid value for depth_type')
 
 
 def define_section(p2, p1=None):
