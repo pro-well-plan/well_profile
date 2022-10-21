@@ -123,9 +123,9 @@ def interp_pt(md, trajectory):
     """
     
     if md < 0:
-        raise ValueError('md value must be positive')
+        raise ValueError('MD value must be positive')
     if md > trajectory[-1]['md']:
-        raise ValueError("md can't be deeper than deepest trajectory point")
+        raise ValueError("MD can't be deeper than deepest trajectory MD")
 
     # Need to find the correct points p1 and p2 to do the interpolation
     p1 = None
@@ -148,6 +148,41 @@ def interp_pt(md, trajectory):
         return interp_vertical(target, md, p1)
 
     return inner_pt_calcs(target, p1, p2)
+
+
+def scan_tvd(tvd, trajectory):
+    if tvd < 0:
+        raise ValueError('TVD value must be positive')
+    if tvd > max([p['tvd'] for p in trajectory]):
+        raise ValueError("TVD value can't be deeper than deepest trajectory TVD")
+
+    p1 = None
+    p2 = None
+    for idx, point in enumerate(trajectory):
+        if point['tvd'] < tvd:
+            if idx < len(trajectory) - 1 and round(tvd, 2) < round(trajectory[idx + 1]['tvd'], 2):
+                p1 = point
+                p2 = trajectory[idx + 1]
+                break
+        elif round(point['tvd'], 2) == round(tvd, 2):
+            return point
+
+    if p2['sectionType'] == 'vertical':
+        # it means that detlaTVD == deltaMD
+        return interp_pt(p1['md'] + tvd - p1['tvd'], trajectory)
+
+    # Applying Bisection
+    new_point = interp_pt((p1['md'] + p2['md'])/2, trajectory)
+    a = p1['md']
+    b = p2['md']
+    while round(tvd, 2) != round(new_point['tvd'], 2):
+        new_md = (a + b) / 2
+        new_point = interp_pt(new_md, trajectory)
+        if new_point['tvd'] < tvd:
+            a = new_md
+        else:
+            b = new_md
+    return new_point
 
 
 def inner_pt_calcs(inner_point, p1, p2, dl_sv=None, dls_resolution=30):

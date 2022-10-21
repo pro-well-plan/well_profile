@@ -38,6 +38,13 @@ class TestLoadTrajectory(TestCase):
 
         run_assertions(self, well, 3790)
 
+    def test_get_point_tvd(self):
+        well = load(r'https://github.com/pro-well-plan/well_profile/raw/master/well_profile/tests/trajectory1.xlsx')
+        self.assertEqual(well.get_point(3245, depth_type='tvd')['pointType'], 'interpolated')
+        self.assertEqual(well.get_point(3245.22, depth_type='tvd')['pointType'], 'survey')
+        with self.assertRaises(ValueError):     # raising error for deeper TVD than deepest trajectory TVD
+            well.get_point(3246, depth_type='tvd')
+
 
 def run_assertions(obj, well, mdt):
     traj = well.trajectory
