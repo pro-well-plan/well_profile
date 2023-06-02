@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.7.4] - 2023-06-02
+### Changed
+- if first row of survey starts with MD=0 and non-zero INC or AZ, those values are used
+- added 'inc' and 'azi' to returned interpolated point for points in hold and vertical sections
+
 ## [v0.6.0] - 2021-06-16
 ### Added
 - Top view plot

@@ -266,6 +266,8 @@ def interp_hold(inner_point, md, p1, p2):
     inner_point['north'] = p1['north'] + (md - p1['md']) * dn
     inner_point['east'] = p1['east'] + (md - p1['md']) * de
     inner_point['tvd'] = p1['tvd'] + (md - p1['md']) * dv
+    inner_point['inc'] = p1['inc']
+    inner_point['azi'] = p1['azi']
     inner_point['pointType'] = 'interpolated'
     inner_point['sectionType'] = 'hold'
 
@@ -276,6 +278,8 @@ def interp_vertical(inner_point, md, p1):
     inner_point['north'] = p1['north']
     inner_point['east'] = p1['east']
     inner_point['tvd'] = p1['tvd'] + (md - p1['md'])
+    inner_point['inc'] = p1['inc']
+    inner_point['azi'] = p1['azi']
     inner_point['pointType'] = 'interpolated'
     inner_point['sectionType'] = 'vertical'
 
