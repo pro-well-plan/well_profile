@@ -22,8 +22,9 @@ class TestLoadTrajectory(TestCase):
 
         # interpolating vertical section
         p = well.get_point(100)
-        self.assertTrue(p == {'md': 100, 'dl': 0.0, 'north': 0, 'east': 0, 'tvd': 100, 'pointType': 'interpolated',
-                              'sectionType': 'vertical'})
+        self.assertTrue(p == {'md': 100, 'dl': 0.0, 'dls': 0, 'north': 0, 'east': 0, 'tvd': 100,
+                              'inc': 0, 'azi': 0,
+                              'pointType': 'interpolated', 'sectionType': 'vertical'})
         # getting two survey points
         p1 = well.get_point(3722.9)
         p2 = well.get_point(3761.8)
