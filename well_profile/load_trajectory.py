@@ -110,7 +110,13 @@ def load(data, **kwargs):
             az[a] += change_azimuth
 
     # CREATING TRAJECTORY POINTS
-    trajectory = [{'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical', 'pointType': 'survey'}]
+    # if the first survey point is at MD=0, use it as the initial point
+    if md[0] == 0:
+        trajectory = [{'md': 0, 'inc': inc[0], 'azi': az[0], 'dl': 0, 'tvd': 0, 'sectionType': 'vertical',
+                       'pointType': 'survey'}]
+    else:
+        trajectory = [
+            {'md': 0, 'inc': 0, 'azi': 0, 'dl': 0, 'tvd': 0, 'sectionType': 'vertical', 'pointType': 'survey'}]
     trajectory[-1].update(initial_point)
     inner_pts += 2
 
